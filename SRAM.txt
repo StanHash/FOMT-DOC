@@ -1,0 +1,16 @@
+Addresses are MFOMTU
+
+Core SRAM functions (probably some ninty library stuff: although different from the GBAFE stuff):
+    080DB3C4 | void sramReadFast(void* src, void* dst, unsigned size); // src is SRAM
+    080DB428 | void sramWriteFast(void* src, void* dst, unsigned size); // dst is SRAM
+    080DB498 | int  sramFindError(void* src1, void* src2, unsigned size); // returns first non-matching byte offset
+    080DB4FC | void sramWriteSafe(void* src, void* dst, unsigned size); // writes up to three times and checks for valid copy
+
+    089D8FDC:
+        .asciz "SRAM_V113"
+        
+        .align
+        .word sramReadFast_core
+        .word sramReadFast
+        .word sramFindError_core
+        .word sramFindError

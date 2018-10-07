@@ -1,0 +1,17 @@
+Addresses are MFOMTU
+
+malloc at MFOMTU:080D7E04
+free   at MFOMTU:080D7E6C
+
+"base" new operator at MFOMTU:080005B0 (this is what checks the new handler)
+common new operator at MFOMTU:080005E8
+
+new handler at MFOMTU:030004C0 (this is in the RAMFunc range; just after the first function) (this is also unused).
+
+delete operator at MFOMTU:0800061C (unlike "base" new; this is the most commonly used delete variant)
+other delete operators at MFOMTU:08000628 and MFOMTU:08000634
+
+heap starts at MFOMTU:02001F10 (size: 3E0F0) The only thing in EWRAM that isn't heap is m4a stuff (02000000-02001F10). All the other static variables are located in IWRAM.
+
+malloc initialization function at MFOMTU:080D7DEC (args: r0 = heap addres; r1 = heap size)
+malloc initialization call in crt0 at MFOMTU:0800010C

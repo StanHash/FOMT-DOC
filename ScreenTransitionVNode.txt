@@ -1,0 +1,15 @@
+Addresses are MFOMTU
+
+ScreenTransitionHandlerInternal struct layout:
+    +00 | word  | DispIoProxy pointer (if null, writes to IO directly)
+    +04 | short | transition speed (negative = reverse transition)
+    +08 | word  | brightness change effect (0 = none, 1 = brightness increase, 2 = brightness decrease)
+    +0C | byte  | enable mosaic change effect (bool)
+    +0E | short | timer (incremented by [+04] each frame)
+
+ScreenTransitionHandler struct layout:
+    +00 | word | pointer to owned ScreenTransitionHandlerInternal
+
+ScreenTransitionVNode struct layout:
+    +00 | VBlankNode
+    +0C | ScreenTransitionHandler

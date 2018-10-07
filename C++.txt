@@ -1,0 +1,61 @@
+Addresses are MFOMTU
+
+constructors:
+    constructors take as first argument a pointer to where to construct the class in (the constructor arguments then follow), and return that same pointer.
+
+destructors:
+    destructors take actually two arguments: the first is the pointer to the object to destruct; and the second is some kind of bitfield that dictates some parameters for destruction (the only one I seem to know is bit 1 set means the object was dynamically allocated and it is the destructor's responsability to free the object; but every destruction calls seem to set bit 2).
+
+inheritance and vtables:
+    When a class in derived from another class; Then the struct layout for that class will be as follows:
+        +00 | struct layout of parent class
+        +xx | added fields from the child class
+
+    When a class has virtual methods; any instance of this class and its derivatives need to hold a pointer to a vtable containing pointers to those methods. The "hidden" vtable pointer field is then added to the end of the struct layout for that class:
+        +00 | class fields
+        +xx | vtable pointer
+    
+    HOWEVER; If the class derives from an already virtual class; Then the vtable pointer field isn't added to the end of the full struct. Instead; the vtable pointer field from the parent class is reused for the child class. (This may not be true in case of mutiple inheritance; needs further investigation).
+
+    vtable format:
+        +00 | word | for mutiple inheritance; offset to add to the "inner" instance pointer to get the "full" object pointer
+        +04 | word | always 0? (My guess is it's a nulled-out rtti stuff pointer)
+        +08 | virtual method function pointers
+
+    Each virtual class has its own vtable format. In the case of single inheritance; vtables can and will match multiple vtable formats (as the child vtable format just adds fields at the end of the parent vtable).
+
+    Because multiple inheritance is a thing and is great; It has to be taken into account for vtable stuff.
+    Basically, when using mutiple inheritance; The child class struct layout will basically look like this:
+        +00 | struct layout of parent class #1
+        +xx | struct layout of parent class #2
+        +yy | ...
+        +zz | added fields from the child class
+
+    In the case of mutiple inheritance with multiple virtual parents; The child class will hold mutiple vtables. Each of those vtables hold an offset that allows the virtual method caller to get the "full" struct pointer from the "inner" struct pointer.
+
+    How I'll name vtables:
+        vtable_<ClassName> : vtable of <ClassName> for <ClassName>
+    or, in case of multiple inheritance:
+        vtable_<ParentName>_<ChildName> : vtable of <ChildName> for <ParentName>
+
+init_array:
+    It's empty, but it exists (it's at MFOMTU:080F0B60).
+    Funnily enough; the code for handling it (in crt0) is broken:
+
+    @ At MFOMTU:08000124
+        ldr    r4, =init_array
+        ldr    r5, [r4], #4 @ load size
+
+        cmp    r5, #0
+
+    loop:
+        ldrne  r6, [r4], #4
+        cmpne  r6, #0
+
+        @ call
+        movne  lr, pc
+        bxne   r6
+
+        @ ??? we don't know the meaning of the state of cpsr anymore (because of function call)
+        subsne r5, r5, #1
+        bne    loop

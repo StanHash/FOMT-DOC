@@ -1,0 +1,39 @@
+Addresses are MFOMTU
+
+VBlankHook struct layout:
+    +00 | word  | pointer to instance of VBlankNode
+    +04 | short | previous interrupt enable state
+    +08 | word  | previous VBlankHook instance pointer
+    +0C | word  | vtable (80EE088)
+
+    +10 | word  | previous vblank interrupt handler function pointer
+    +14 | word  | VBlankHook vtable (80EE07C)
+
+VBlankNode struct layout:
+    +00 | word | pointer to first node pointer (?)
+    +04 | word | pointer to next node
+    +08 | word | vtable
+
+VBlankNode vtable layout:
+    +08 | int onVBlank();
+    +0C | ~VBlankNode()
+
+VBlankNodeList struct layout:
+    +00 | VBlankNode (this)
+    +0C | word | pointer to first
+    +10 | VBlankNode (dummy end)
+
+VBlankNodeList vtable layout:
+    +00 | VBlankNode vtable
+    +10 | void insert(VBlankNode*)
+    +14 | void remove(VBlankNode*)
+    +18 | void clear()
+    +1C | ??
+    +20 | void swap(VBlankNodeList*)
+
+Struct made in 80089E8 layout:
+    +00 | SoundVSyncVNode : VBlankNode
+    +0C | VBlankRootNodeList : VBlankNodeList
+    +28 | SoundMainVNode : VBlankNode
+    +34 | VBlankHandler : VBlankRootNodeList, VBlankHook
+    +68 | short | 1 if dma1 is disabled, 0 otherwise

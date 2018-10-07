@@ -1,0 +1,30 @@
+Addresses are MFOMTU
+
+KeyStatusCore struct layout:
+    +00 | short | held keys (bit set = key held)
+
+KeyStatus struct layout:
+    +00 | KeyStatusCore
+    +04 | short | pressed keys (bit set = key pressed)
+
+KeyStatusRepeated struct layout:
+    +00 | KeyStatus
+    +08 | short     | repeated keys
+    +0A | short     | initial repeat delay (in update count/frames)
+    +0C | short     | repeat interval (in update count/frames)
+    +0E | short[$A] | repeat timers (one for each key)
+
+methods (formatted as if callable from C because that's probably how I'll end up hacking this mess):
+    080091A8 | KeyStatusCore*     KeyStatusCore_construct(KeyStatusCore*);
+    080091BC | void               KeyStatusCore_setForced(KeyStatusCore*, u16 keys);
+    080091C0 | void               KeyStatusCore_sync(KeyStatusCore*);
+
+    080091D0 | KeyStatus*         KeyStatus_constructSynced(KeyStatus*);
+    080091E4 | KeyStatus*         KeyStatus_constructForced(KeyStatus*, u16 keys);
+    080091F8 | void               KeyStatus_sync(KeyStatus*);
+
+    0800920C | KeyStatusRepeated* KeyStatusRepeated_construct(KeyStatusRepeated*, u16 delay, u16 interval);
+    08009250 | KeyStatusRepeated* KeyStatusRepeated_constructDefault(KeyStatusRepeated*);
+    080092D0 | void               KeyStatusRepeated_sync(KeyStatusRepeated*);
+    08009330 | void               KeyStatusRepeated_setRepeatDelay(KeyStatusRepeated*, u16 delay);
+    08009364 | void               KeyStatusRepeated_setRepeatInterval(KeyStatusRepeated*, u16 interval);

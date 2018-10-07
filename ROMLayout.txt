@@ -1,0 +1,17 @@
+
+FOMT(U):
+    08000000 | Header
+    0875B958 | SRAM library signature thing
+    0875B9F8 | ARM Functions that are loaded into RAM (03000490)
+    0875C244 | Start of Free Space
+
+MFOMT(U):
+    08000000 | Header
+    080000C0 | crt0
+    0800018C | Main (code start)
+    080EDF0C | vtables
+    080F0B60 | rodata
+        080F1B6C | rodata (Tool Strings & Table)
+    089D8FDC | SRAM library signature thing
+    089D907C | Functions that are loaded into RAM (03000490)
+    089D98C8 | Start of Free Space (that's like half the ROM lol)
