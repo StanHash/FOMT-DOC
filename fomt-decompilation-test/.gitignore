@@ -1,0 +1,11 @@
+# Object files
+*.o
+
+# ROMs
+*.gba
+*.elf
+*.map
+*.dump
+
+# Tools
+agbcc/*

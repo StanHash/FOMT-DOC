@@ -1,0 +1,41 @@
+OUTPUT_ARCH(arm)
+
+gToolTable = 0x80EAB0C;
+
+SECTIONS
+{
+    /* TODO: figure out what is COMMON and .bss */
+
+    . = 0x02000000;
+    EWRAM (NOLOAD) :
+    ALIGN(4)
+    {
+        
+    }
+
+    . = 0x03000000;
+    IWRAM (NOLOAD) :
+    ALIGN(4)
+    {
+        
+    }
+
+    . = 0x08000000;
+    ROM :
+    ALIGN(4)
+    {
+        /* .text */
+        data_0.o(.text)
+        Tool.o(.text)
+        data_DBC8.o(.text)
+        Tool.o(.rodata)
+        . = ALIGN(4);
+        data_E963C.o(.rodata)
+    } = 0
+
+    /* Discard everything not specifically mentioned above. */
+    /DISCARD/ :
+    {
+        *(*);
+    }
+}
