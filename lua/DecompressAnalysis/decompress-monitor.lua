@@ -561,8 +561,17 @@ decompress = {
 
 }
 
+--[[
+
+-- FOMTU
 pDecompStart = 0x080D102C
 pDecompEnd   = 0x080D10EE
+
+--]]
+
+-- MFOMTU
+pDecompStart = 0x080D8C54
+pDecompEnd   = 0x080D8D16
 
 decompState  = nil
 
