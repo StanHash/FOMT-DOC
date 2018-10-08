@@ -1,0 +1,55 @@
+Addresses are MFOMTU
+
+RAM Functions 2 & 3 are the ones used to unpack 1bpp character glyphs into 4bpp tiles (suitable for VRAM):
+    RAMFunc 2 (DrawGlyph2Tile) is used for 2 tile wide glyphs
+    RAMFunc 3 (DrawGlyph1Tile) is used for 1 tile wide glyphs
+
+(glyphs are always displayed 2 tiles tall)
+
+Those functions are also responsible for generating shadows.
+
+They take the following arguments:
+    arg1 (r0) = pointer to glyph gfx
+    arg2 (r1) = pointer to output buffer (not tuned for writing directly to VRAM (?))
+
+The output buffer is formatted line-by-line; Which means that 2tile wide glyphs will have their top 2 tiles before their bottom 2. I don't really know about that decision as it makes 2 tile glyphs and 1 tile glyph need further distinction in how they are processed.
+
+Glyph data follow this format:
+    each byte is a 8 pixel line; the *highest* bit is the leftmost pixel (this is in contract with how VRAM tiles work, where it's the *lowest* nibble that represents the leftmost pixel)
+    for 2 tile wide glyphs; one "full" line is then 2 bytes
+    there's full 12 lines total (not 16! the top 2 and bottom 2 lines are always assumed cleared)
+    this means that a 1 tile wide glyph is 12 bytes of data; and a 2 tile wide glyph 24 bytes.
+
+There's no sub-tile glyph widths; the FOMT font is "fixed width" (which is sad).
+
+080D8950 | int drawCharacterGlyph(void* buffer, int character);
+    this the master glyph drawing routine; the only function that calls the RAM functions directly.
+
+    this routine returns the number of tiles the character glyph is wide. If the character cannot be displayed (usually because it is the first part of a 2 byte character); it returns 0. In that case, it is the responsibility of the caller to then build the 2 byte character.
+
+    the character is a Shift-JIS encoded character (and by that I mean complete Shift-JIS with ascii compatibility and everything); With, in case of double byte characters; the first byte is orred shifted 8 bits to the second byte.
+
+    the functions works this way:
+        it has special cases for characters around the B1-C3 (with some exceptions) range. I think those are european characters with accents and stuff. (In standard shift-jis those are half-width katakana (?)) (Those are all drawn 1 tile wide; so calling DrawGlyph1Tile and returning 1).
+
+        for single byte characters (values 00-FF): it looks at MFOMTU:089AC6E8; which is an array of s16 glyph indexes indexed by character directly. Then it gets the glyph by indexing the 1 tile wide glyph array at MFOMTU:089AB014 (and then calls DrawGlyph1Tile and returns 1). There are $171 glyphs for single byte characters (?).
+
+        for double byte characters (values 100-FFFF): it calls MFOMTU:080D88FC; which converts a Shift-JIS character to a JIS X 0208 character (maybe? or maybe it's just some non-standard internal value idk). Then it looks at the s16 table at MFOMTU:089D51D8 (which is hooge; 7938 entries) to index the 2 tile wide glyph array at MFOMTU:089AC8E8 (also hooge, 6922 glyphs) (and then calls DrawGlyph2Tile and returns 2).
+
+    This function is only called at two different locations (yep, wrappers around wrappers: everyone's favourite).
+
+08050A64 | int drawCharGlyphTo2DGfxBuffer(vec2 size, void* buf, int x, int y, int character);
+    (vec2 is 2 shorts packed into a word (lo short is width, hi short is height))
+
+    the size is the size of the buffer (in tiles). The buffer is an arrangement of tiles. It being considered a 2D map instead of just a list of tiles is probably just to make it easier to reason about.
+
+    x and y are *not* in tiles; but in pixels. There's a start of handling code for non-aligned positions but the function called in this case is a no-op lol. (so you can specify non aligned positions but they won't work).
+
+    anyway, this draws the glyph tiles for the given character to the 2D buffer, and returns glyph tile width.
+
+08050B64 | int drawCharGlyphTo2DGfxBufferExt(vec2 size, void* buf, int x, int y, int character, int idk, int man);
+    TODO
+
+08050EA8 | void drawStringTo2DGfxBuffer(vec2 size, void* buf, int x, int y, const char* cstr);
+    This just draws the multiple characters in the given string using drawCharGlyphTo2DGfxBuffer (and properly packs 2 byte characters when needed).
+

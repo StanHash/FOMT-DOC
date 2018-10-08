@@ -5,8 +5,8 @@ at MFOMTU:089D907C until the end of the ROM data is the area holding the "RAM Fu
 function list:
     089D907C/03000490: FullStop (Stops the GBA console)
     089D90C8/030004DC: ?? func 1 (it's huge)
-    089D9300/03000714: Some text glyph drawing function
-    089D9448/0300085C: Some other text glyph drawing function
+    089D9300/03000714: DrawGlyph2Tile
+    089D9448/0300085C: DrawGlyph1Tile
     089D9544/03000958: MasterInterruptHandler
     089D9608/03000A1C: UpdateEnabledInterrupts (interrupt enabler/disabler)
     089D9640/--------: ?? func 6 (unreferenced outside of ram func 8?)
