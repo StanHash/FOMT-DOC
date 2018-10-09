@@ -8,17 +8,21 @@ TextBox struct layout:
     +000 | bit[19-22] | bg pal id to use for the box gfx
     +004 | word |
     +008 | word | state identifier?
-        state 0 = ?
-        state 1 = ?
-        state 2 = ?
-        state 3 = ?
-        state 4 = ?
-    +00C | byte | 
+        state 0 = no box
+        state 1 = box opening?
+        state 2 = box closing?
+        state 3 = text is finished
+        state 4 = text is advancing
+        state 5 = text is waiting for input
+        state 6 = ?
+    +00C | byte | level of "displayedness" of the box? (like when it opens and closes) range 0 (closed) to 8 (opened)
     +00D | byte | 
-    +010 | ??? (PaletteManager related)
-    +018 | ???
+    +010 | PaletteSlotHolder  |
+    +018 | TileVramSlotHodler |
     +020 | VBlankNodeList
-    +03C | 
+    +03C | TransferRequestList<8> (?)
+        +00 | word | current size (max 8)
+        +04 | array of 8 (max) TransferRequest objects (size:$10)
     +0C0 | some VBlankNode child (vtable 080EFDD8; size $10; [+0C] = TextBox+3C)
     +0D0 | TextBoxDisplayManagerImpl
     +0EC | TextBoxInterpreter
@@ -26,10 +30,10 @@ TextBox struct layout:
     +130 | CheckerboardFakeTransparencyVNode
     +148 | TextBoxBoxSyncVNode
     +158 | word | 0?
-    +160 | ??? (this is the weird one that seems to be palette related constructed by MFOMTU:08061448)
-    +190 | ??? (another one of those)
-    +1C0 | ??? (something related to the one above, constructed by MFOMTU:080615A0)
-    +1D4 | ??? (TileVramManager related constructed by MFOMTU:08008438)
+    +160 | DefinedSprite
+    +190 | DefinedSprite
+    +1C0 | SpriteAnimator
+    +1D4 | TileVramSlotHodler | 
     +1DC | bit[00] | ??
     +1DC | bit[01] | ??
     +1E4 | some object
@@ -37,14 +41,15 @@ TextBox struct layout:
             +00 | array of 4 of the following:?
                 +00 | word  | ?
                 +04 | short | ?
-    +1E8 | ??? (PaletteManager related constructed by MFOMTU:080077D8)
+    +1E8 | PaletteSlotHolder
     +1F0 | bit[00] | ??
     +1F0 | bit[01] | ??
     +500 | byte    | 0? (wait why are we suddenly jumping $310 bytes ahead)
-    +504 | ??? (another one of those constructed by MFOMTU:08061448 ones)
-    +534 | ??? (constructed by MFOMTU:080615A0)
-    +548 | ??? (PaletteManager related constructed by MFOMTU:080077D8)
-    +550 | byte | ?
+    +504 | DefinedSprite
+    +534 | SpriteAnimator
+    +548 | PaletteSlotHolder
+    +550 | bit[00-05] | config bits?
+        & 01 = play sounds?
 
 TextBoxDisplayManagerImpl struct layout:
     +00 | TextBoxDisplayManager (vtable 080EFE00)

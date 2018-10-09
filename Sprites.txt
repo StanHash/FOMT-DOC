@@ -1,0 +1,91 @@
+Addresses are MFOMTU
+
+This file was originally called STANH-ANNOUNCES-TCS2.txt (Nobody is actually announcing anything; it's just researching this reminds me just a bit too much of GBAFE APs which I initially called TCSs which stands for "The Confusing Struct" and it's a horrible name thus reusing it is a good joke (right?)).
+
+Ok whoa I think this some advanced animated sprite system; sick. Those are like APs with gfx packed in (except that, unlike APs, those don't acutally do anything to the VRAM/OAM/Palettes :/). Let's ditch the TCS2 name and acutally call those Sprites.
+
+AbstractSprite vtable layout:
+    +08 | (destructor)
+    +0C | SpriteAnimationData getAnimationData(int animIndex);
+    +10 | SpriteFrameData getFrameData(int frameIndex);
+
+AbstractSprite struct layout:
+    +00 | vtable (080EDF68, pure)
+
+SpriteFrameData struct layout:
+    +00 | word  | oam data pointer
+    +04 | short | oam data entry count
+    +08 | word  | tile gfx pointer
+    +0C | short | tile gfx size (in bytes!)
+    +10 | word  | palette pointer
+    +14 | short | palette size (in bytes!)
+    +18 | word  | rotscale data? pointer
+    +1C | short | rotscale data? count
+
+SpriteAnimationData struct layout:
+    +00 | word  | pointer to SpriteAnimInstruction array
+    +04 | short | SpriteAnimInstruction count
+
+SpriteAnimator:
+    +00 | word  | pointer to AbstractSprite
+    +04 | SpriteAnimationData
+    +0C | short | current instruction index?
+    +0E | short | "time" left for current frame? (initialized to $100*SpriteAnimInstruction.time)
+    +10 | short | "time" that passes per "tick".
+    +12 | byte  | needs update bool?
+
+SpriteAnimInstruction layout:
+    +00 | short | frame id
+    +02 | short | time (tick/frame amount)
+
+DefinedSprite struct layout:
+    +00 | AbstractSprite (vtable 080EFF08)
+    +04 | word  | animation entry array pointer
+    +08 | word  | frame metadata entry array pointer ($10 byte per entry)
+    +0C | word  | base oam data pool (8 byte per entry)
+    +10 | word  | tile gfx pool ($20 byte per entry)
+    +14 | word  | palette pool ($20 byte per entry)
+    +18 | word  | ? (rotscale data?) pool ($8 byte per entry)
+    +1C | word  | SpriteAnimInstruction pool ($4 byte per entry)
+    +20 | short | animation entry count
+    +22 | short | frame metadata entry count
+    +24 | short | base oam data total count
+    +26 | short | tile gfx total count
+    +28 | short | palette total count
+    +2A | short | ? (+18) (rotscale data?) total count
+    +2C | short | SpriteAnimInstruction total count
+
+    animation entry layout:
+        +00 | SpriteAnimInstruction count
+        +02 | SpriteAnimInstruction base index
+
+    frame metadata entry layout:
+        +00 | frame oam entry count
+        +02 | frame oam entry base index in pool
+        +04 | frame tile gfx count
+        +06 | frame tile gfx base index in pool
+        +08 | frame palette count
+        +0A | frame palette base index in pool
+        +0C | frame ? (+18) (rotscale data?) count
+        +0E | frame ? (+18) (rotscale data?) base index in pool
+
+    full sprite definition layout (this is what's passed as argument to the constructor):
+        repeat this for each 7 kind of arrays:
+            +00 | short | number of entries
+            +04 | data  | entries
+
+Functions:
+    08061448 | DefinedSprite*      DefinedSprite_construct(DefinedSprite*, void* definition);
+    080614DC | SpriteAnimationData DefinedSprite_getAnimationData(DefinedSprite*, int animIndex);
+    0806150C | SpriteFrameData     DefinedSprite_getFrameData(DefinedSprite*, int frameIndex);
+
+    080615A0 | SpriteAnimator* SpriteAnimator_construct(SpriteAnimator*, AbstractSprite*, int animIndex);
+    080615CC | void SpriteAnimator_setSpriteAndAnimation(SpriteAnimator*, AbstractSprite*, int animIndex);
+    080615DC | void SpriteAnimator_setAnimation(SpriteAnimator*, int animIndex);
+    08061610 | int SpriteAnimator_reachesEnd(SpriteAnimator*);
+        This returns 1 if, on the next tick, the animation will loop back to the first (or last, in case of negative time interval), instruction.
+    0806166C | int SpriteAnimator_update(SpriteAnimator*);
+        Returns a flagset:
+            & 1 = animation instruction index changes (frame doesn't necesseraly need update)
+            & 2 = frame needs update
+            & 4 = animation looped
