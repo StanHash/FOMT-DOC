@@ -14,11 +14,11 @@ TextBox struct layout:
         state 3 = text is finished
         state 4 = text is advancing
         state 5 = text is waiting for input
-        state 6 = ?
+        state 6 = waiting for user choice?
     +00C | byte | level of "displayedness" of the box? (like when it opens and closes) range 0 (closed) to 8 (opened)
     +00D | byte | 
-    +010 | PaletteSlotHolder  |
-    +018 | TileVramSlotHodler |
+    +010 | PaletteSlotHolder  | 
+    +018 | TileVramSlotHodler | 
     +020 | VBlankNodeList
     +03C | TransferRequestList<8> (?)
         +00 | word | current size (max 8)
@@ -29,10 +29,11 @@ TextBox struct layout:
     +120 | TextBoxTextTileSyncVNode
     +130 | CheckerboardFakeTransparencyVNode
     +148 | TextBoxBoxSyncVNode
-    +158 | word | 0?
-    +160 | DefinedSprite
-    +190 | DefinedSprite
-    +1C0 | SpriteAnimator
+    +158 | word | current choice id for choice boxes?
+    +15C | word | something related to choice boxes?
+    +160 | DefinedSprite | hand cursor sprite
+    +190 | DefinedSprite | "text box arrow" sprite
+    +1C0 | SpriteAnimator | sprite animator for either the hand cursor or the "text box arrow"
     +1D4 | TileVramSlotHodler | 
     +1DC | bit[00] | ??
     +1DC | bit[01] | ??
@@ -45,22 +46,24 @@ TextBox struct layout:
     +1F0 | bit[00] | ??
     +1F0 | bit[01] | ??
     +500 | byte    | 0? (wait why are we suddenly jumping $310 bytes ahead)
-    +504 | DefinedSprite
-    +534 | SpriteAnimator
+    +504 | DefinedSprite  | heart sprite
+    +534 | SpriteAnimator | heart sprite animator
     +548 | PaletteSlotHolder
     +550 | bit[00-05] | config bits?
-        & 01 = play sounds?
+        & 01 = play some sound
+        & 04 = play text progess beeping noise thing
+        & 10 = play sounds when switching options in a text choice.
 
 TextBoxDisplayManagerImpl struct layout:
     +00 | TextBoxDisplayManager (vtable 080EFE00)
     +04 | word    | pointer to TextBox+10
     +08 | word[3] | array of pointers to dynamically allocated TextBoxLineGfx (one per text line)
-    +14 | short   | ?
-    +16 | short   | ?
-    +18 | byte    | ?
-    +19 | byte    | ?
-    +1A | byte    | 1?
-    +1B | byte    | ?
+    +14 | short   | current x tile
+    +16 | short   | current display line (0-3)
+    +18 | byte    | current top gfx line (this may be different from 0 because it reuses the top one for the bottom one each time a scroll occurs)
+    +19 | byte    | bool oam needs update? (set when scroll occurs)
+    +1A | byte    | bool character added?
+    +1B | byte    | bool non-blank character added (used to play the sound(tm))
 
 TextBoxLineGfx struct layout:
     +00 | array of 7 objects (size: $10) (one per sprite on the line)
@@ -124,3 +127,10 @@ TextBoxInputManager vtable layout:
     +0C | int textIsInstant(void);
     +10 | int textShouldWaitForInput(void);
     +1C | int textCheckInput(void);
+
+Text codes:
+    actually follows ascii:
+    - $05 is enquiry (wait for A press)
+    - $0A is line feed (go to new line; and acutally do not reset x cursor)
+    - $0C is form feed (clear the text box and start over)
+    - $0D is carriage return (reset x cursor)
