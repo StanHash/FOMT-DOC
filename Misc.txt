@@ -1,0 +1,37 @@
+Addresses are MFOMTU
+
+PaletteManager struct layout:
+    +00 | pointer to first free entry
+    +04 | array of $20 entries:
+        +00 | union
+            +00 | word  | (if not used) pointer to next entry
+            +00 | short | (if used) ?
+            +02 | short | (if used) unique identifier (initialized from [SomeManager+48])
+    +44 | word  | usage bit table
+    +48 | short | usage count
+    +4A | short | unique identifier counter
+    +4C | word  | number of Handles
+    +50 | byte  | ?
+    +51 | byte  | ?
+
+TileVramManagerRelated struct layout:
+    +00 | array of 8 (?) structs (size: $14):
+        +00 | word | begin
+        +04 | word | end
+        ugh
+
+TileVramSlotHodler struct layout:
+    +00 | TileVramManagerHandle
+    +04 | word | identifier
+
+PaletteSlotHolder struct layout:
+    +00 | PaletteManagerHandle
+    +04 | word | identifier
+
+CheckerboardFakeTransparencyVNode struct layout:
+    +00 | VBlankNode (vtable 080EFE20)
+    +0C | word | source gfx pointer
+    +10 | word | target gfx pointer
+    +14 | bit[00-13] | tile count
+    +14 | bit[14]    | alterating state
+    +14 | bit[15]    | don't do the effect when set

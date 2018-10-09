@@ -1,0 +1,121 @@
+Addresses are MFOMTU
+
+TextBox struct layout:
+    +000 | bit[00-01] | idk
+    +000 | bit[02-06] | bg map block to use (in increments of $800) for the box gfx
+    +000 | bit[07-08] | bg tile block to use (in increments of $4000) for the box gfx
+    +000 | bit[09-18] | bg base tile index to use for the box gfx
+    +000 | bit[19-22] | bg pal id to use for the box gfx
+    +004 | word |
+    +008 | word | state identifier?
+        state 0 = ?
+        state 1 = ?
+        state 2 = ?
+        state 3 = ?
+        state 4 = ?
+    +00C | byte | 
+    +00D | byte | 
+    +010 | ??? (PaletteManager related)
+    +018 | ???
+    +020 | VBlankNodeList
+    +03C | 
+    +0C0 | some VBlankNode child (vtable 080EFDD8; size $10; [+0C] = TextBox+3C)
+    +0D0 | TextBoxDisplayManagerImpl
+    +0EC | TextBoxInterpreter
+    +120 | TextBoxTextTileSyncVNode
+    +130 | CheckerboardFakeTransparencyVNode
+    +148 | TextBoxBoxSyncVNode
+    +158 | word | 0?
+    +160 | ??? (this is the weird one that seems to be palette related constructed by MFOMTU:08061448)
+    +190 | ??? (another one of those)
+    +1C0 | ??? (something related to the one above, constructed by MFOMTU:080615A0)
+    +1D4 | ??? (TileVramManager related constructed by MFOMTU:08008438)
+    +1DC | bit[00] | ??
+    +1DC | bit[01] | ??
+    +1E4 | some object
+        +00 | word | pointer to some dynamically allocated object (size: $20)
+            +00 | array of 4 of the following:?
+                +00 | word  | ?
+                +04 | short | ?
+    +1E8 | ??? (PaletteManager related constructed by MFOMTU:080077D8)
+    +1F0 | bit[00] | ??
+    +1F0 | bit[01] | ??
+    +500 | byte    | 0? (wait why are we suddenly jumping $310 bytes ahead)
+    +504 | ??? (another one of those constructed by MFOMTU:08061448 ones)
+    +534 | ??? (constructed by MFOMTU:080615A0)
+    +548 | ??? (PaletteManager related constructed by MFOMTU:080077D8)
+    +550 | byte | ?
+
+TextBoxDisplayManagerImpl struct layout:
+    +00 | TextBoxDisplayManager (vtable 080EFE00)
+    +04 | word    | pointer to TextBox+10
+    +08 | word[3] | array of pointers to dynamically allocated TextBoxLineGfx (one per text line)
+    +14 | short   | ?
+    +16 | short   | ?
+    +18 | byte    | ?
+    +19 | byte    | ?
+    +1A | byte    | 1?
+    +1B | byte    | ?
+
+TextBoxLineGfx struct layout:
+    +00 | array of 7 objects (size: $10) (one per sprite on the line)
+        +00 | word | pointer to dynamically allocated gfx buffer (size: $104)
+            +00 | word       | ??
+            +04 | byte[$100] | tile gfx buffer (8 tiles)
+        +04 | TileVramManagerHandle
+        +08 | word | tile identifier
+        +0C | byte | needs sync bool (aka graphics were updated)
+
+TextBoxTextTileSyncVNode struct layout:
+    +00 | VBlankNode (vtable 080EFDC8)
+    +0C | pointer to TextBoxDisplayManagerImpl
+
+TextBoxBoxSyncVNode struct layout:
+    +00 | VBlankNode (vtable 080EFDB8)
+    +0C | bit[00-04] | from [TextBox:bit[02-06]] (bg map block (in increments of $800))
+    +0C | bit[05-14] | from [TextBox:bit[09-18]] (bg tile base to use for the box gfx)
+    +0C | bit[15-18] | from [TextBox:bit[19-22]] (bg pal id to use for the box gfx)
+    +0C | bit[19-22] | palette index from TextBox+10 (some obj tile id)
+
+TextBoxInterpreter struct layout: (constructed by MFOMTU:080B2FA8)
+    +00 | word   | state identifier
+        state 0 = end
+        state 1 = advance normally
+        state 2 = waiting for input)
+    +04 | short  | text speed ($100 = 1 character per tick/frame)
+    +06 | short  | text cursor (incremented by text speed each tick/frame)
+    +08 | word   | pointer to null-terminated string
+    +0C | word   | pointer to TextBoxCharExpander instance
+    +10 | word   | pointer to another null-terminated string (takes priority over [+08])
+    +14 | byte[] | string buffer (for expanded text bits)
+
+TextBoxCharExpander struct layout:
+    +00 | vtable ()
+
+TextBoxDisplayManager struct layout:
+    +00 | vtable (080EFE48)
+
+TextBoxInputManager struct layout:
+    +00 | vtable (080EFE30)
+
+StaticTextBoxInputManager struct layout:
+    +00 | TextBoxInputManager (vtable 080EFDE8)
+    +04 | word | pressed keys
+    +08 | byte | allow advancing to next textbox
+
+TextBoxCharExpander vtable layout:
+    +08 | (destructor)
+    +0C | <something> textTryExpandCharacter(int character); // expands, for example, the player name maybe?
+
+TextBoxDisplayManager vtable layout:
+    +08 | (destructor)
+    +0C | int  textDrawCharacter(int character); // returns 0 on failure
+    +10 | void textDoCarriageReturn(void);
+    +14 | void textDoLineFeed(void);
+    +18 | void textDoFormFeed(void);
+
+TextBoxInputManager vtable layout:
+    +08 | (destructor)
+    +0C | int textIsInstant(void);
+    +10 | int textShouldWaitForInput(void);
+    +1C | int textCheckInput(void);

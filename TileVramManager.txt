@@ -12,7 +12,7 @@ TileVramManager struct layout:
                 +00 | word       | (if not used) pointer to next entry (or 0 if last)
                 +00 | bit[00-09] | (if used) allocation position
                     | bit[10-13] | (if used) allocation size (in powers of 2; so size 3 actually means 2^3 = 8 "slots" occupied)
-                +02 | short      | (if used) used bool (?)
+                +02 | short      | (if used) allocation count????
                 +04 | short      | (if used) unique identifier (initialized from [+922] after increment)
     +824 | allocation tree
         +00 | byte | 1 if this node has some stuff allocated in it

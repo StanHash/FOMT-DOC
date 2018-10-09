@@ -6,6 +6,11 @@ constructors:
 destructors:
     destructors take actually two arguments: the first is the pointer to the object to destruct; and the second is some kind of bitfield that dictates some parameters for destruction (the only one I seem to know is bit 1 set means the object was dynamically allocated and it is the destructor's responsability to free the object; but every destruction calls seem to set bit 2).
 
+methods:
+    methods take a pointer to the calling instance ("this") as "hidden" first argument.
+
+    !!! In case of method returning a non-fundamental object (a struct or whatever); the first argument is the pointer to area in which to build that object (and the "this" pointer then becomes second argument). (the return value pointer takes "priority" over the this pointer).
+
 inheritance and vtables:
     When a class in derived from another class; Then the struct layout for that class will be as follows:
         +00 | struct layout of parent class

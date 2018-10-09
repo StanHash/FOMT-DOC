@@ -12,16 +12,16 @@ VBlankHook struct layout:
 VBlankNode struct layout:
     +00 | word | pointer to first node pointer (?)
     +04 | word | pointer to next node
-    +08 | word | vtable
+    +08 | word | vtable (080EE128)
 
 VBlankNode vtable layout:
     +08 | int onVBlank();
     +0C | ~VBlankNode()
 
 VBlankNodeList struct layout:
-    +00 | VBlankNode (this)
-    +0C | word | pointer to first
-    +10 | VBlankNode (dummy end)
+    +00 | VBlankNode (vtable 080EE0F4)
+    +0C | word       | pointer to first
+    +10 | VBlankNode | dummy end node (vtable 080EE118)
 
 VBlankNodeList vtable layout:
     +00 | VBlankNode vtable
