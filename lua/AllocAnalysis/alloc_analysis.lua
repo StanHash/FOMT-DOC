@@ -88,7 +88,6 @@ alloc_analysis = {
 			self.allocTable[address] = nil
 		end
 	end
-
 }
 
 alloc_analysis.__index = alloc_analysis

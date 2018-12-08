@@ -5,9 +5,10 @@ struct_type = {
 	new = function(size)
 		local instance = {}
 		
-		instance.size = size
-		instance.accesses = {}
-		instance.fields   = nil
+		instance.size         = size
+		instance.name         = nil
+		instance.accesses     = {}
+		instance.fields       = nil
 		
 		return setmetatable(instance, struct_type)
 	end,
@@ -18,6 +19,18 @@ struct_type = {
 			self.accesses[from] = offset
 			
 			-- clean fields, they need updating anyway
+			self.fields = nil
+		end,
+		
+		merge_with = function(self, other)
+			for access, offset in pairs(other.accesses) do
+				self.accesses[access] = offset
+			end
+			
+			if other.name and not self.name then
+				self.name = other.name
+			end
+			
 			self.fields = nil
 		end,
 		
@@ -56,6 +69,18 @@ struct_type = {
 			end
 			
 			return self.fields
+		end,
+		
+		set_name = function(self, name)
+			self.name = name
+		end,
+		
+		get_name = function(self)
+			if self.name then
+				return self.name
+			else
+				return "<anonymous>"
+			end
 		end
 	
 	}

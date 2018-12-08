@@ -35,7 +35,9 @@ db = {
 fill_db(db)
 --]]
 
-alloc_analysis.new():setup_hook(
+ALLOC_ANALYSER = alloc_analysis.new()
+
+ALLOC_ANALYSER:setup_hook(
 	-- 0x080D01F8, -- FOMT malloc address
 	-- 0x080D0260  -- FOMT free   address
 	
@@ -45,6 +47,16 @@ alloc_analysis.new():setup_hook(
 	0x080D7E6C  -- MFOMT free         address
 )
 
+gui.register(function()
+	local line = 0
+
+	for address, info in pairs(ALLOC_ANALYSER.allocTable) do
+		gui.text(4, 4 + line * 8, ("%X:%X %s"):format(address, info.size, info.struct:get_name()))
+		line = line + 1
+	end
+end)
+
+--[[
 memory.registerexec(
 	0x080D8C54, -- MFOMT decompress address
 
@@ -55,6 +67,7 @@ function()
 		memory.getregister("r14")
 	))
 end)
+--]]
 
 --[[
 
