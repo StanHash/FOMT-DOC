@@ -28,6 +28,11 @@ PaletteSlotHolder struct layout:
     +00 | PaletteManagerHandle
     +04 | word | identifier
 
+OamProxy struct layout:
+    +00 | byte | ?
+    +01 | byte | 
+    +04 | array of shorts (the OAM buffer)
+
 CheckerboardFakeTransparencyVNode struct layout:
     +00 | VBlankNode (vtable 080EFE20)
     +0C | word | source gfx pointer

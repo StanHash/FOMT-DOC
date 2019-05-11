@@ -75,11 +75,11 @@ DefinedSprite struct layout:
             +04 | data  | entries
 
 Functions:
-    08061448 | DefinedSprite*      DefinedSprite_construct(DefinedSprite*, void* definition);
+    08061448 | DefinedSprite       DefinedSprite_construct(void* definition);
     080614DC | SpriteAnimationData DefinedSprite_getAnimationData(DefinedSprite*, int animIndex);
     0806150C | SpriteFrameData     DefinedSprite_getFrameData(DefinedSprite*, int frameIndex);
 
-    080615A0 | SpriteAnimator* SpriteAnimator_construct(SpriteAnimator*, AbstractSprite*, int animIndex);
+    080615A0 | SpriteAnimator SpriteAnimator_construct(AbstractSprite*, int animIndex, int timePerTick);
     080615CC | void SpriteAnimator_setSpriteAndAnimation(SpriteAnimator*, AbstractSprite*, int animIndex);
     080615DC | void SpriteAnimator_setAnimation(SpriteAnimator*, int animIndex);
     08061610 | int SpriteAnimator_reachesEnd(SpriteAnimator*);

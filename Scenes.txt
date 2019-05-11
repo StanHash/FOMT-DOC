@@ -1,0 +1,6 @@
+Addresses are MFOMTU
+
+The game handles different screens and whatnot using "Scene" objects (I'm borrowing the terminology from my RPGMaker days). There's no "Scene Manager" objects or whatever tho. There's a main scene management function called by the main loop, but individual scenes can also just call up "sub"scenes and run those no problem (ex: the new game scene going through player name select scene, then farm name select scene, then dog name select scene, etc in a potential loop).
+
+Running a scene implies a full run until it ends (not just a single frame or something like that).
+

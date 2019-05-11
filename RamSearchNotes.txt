@@ -1,0 +1,5 @@
+
+802F0D6 : writes value that increments when moving, but loops around after 31 (?) (player sprite animation counter?)
+802D3B0 : writes x position of player
+802D3B4 : y pos player
+80AABE6 : y pos camera

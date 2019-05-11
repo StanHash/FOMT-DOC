@@ -15,12 +15,14 @@ I didn't try too hard to get this all to work. I quickly came to the assumption 
 
 A lot of the internals make me think this likes to use its own stuff instead of "standard" stuff. With some hand-written version of `rand` that can be found in the middle of the decompression routines, and the new handler pointer being in the middle of the IWRAM functions, the div and mod libgcc functions using `svc 6` for signed divisions and what not. This makes me think that the team behind this game was into tinkering with the toolset and stuff (and it would make sense for them to have used an "updated" version of GCC). Heck, `crt0` is broken! (`init_array` handling more specifically; which isn't really a problem since said array is empty).
 
-(My guess is that this used some kind of early GCC 3 (for reference, the first game of the family came out April 18, 2003)).
+My guess is that this used some kind of early GCC 3 (for reference, the first game of the family came out April 18, 2003). There also doesn't seem to be any notable difference in code generation between FOMT(U) and MFOMT(U).
 
 # dependencies
 
 in a `tools` folder:
+
 - "[`agbcxx`](https://github.com/StanHash/agbcc/tree/cxx)"
 
 in a `roms` folder:
+
 - `base.gba` (HM-FOMT (U) ROM; sha1: `a2fc3574f0a65a4fcf7682fb274b9d7eebdef963`; you'll need to dump it yourself)

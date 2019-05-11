@@ -1,0 +1,109 @@
+Addresses are MFOMTU
+
+Warning: not very pretty notes.
+
+ENTITY(?) INHERITANCE TREE (I might have missed some):
+- AbstractEntity (80EE790) | pure
+    - vtable_80EEDB8 | pure
+        - vtable_80EEA94 | pure
+            - vtable_80EEA08
+            - vtable_80EE968
+            - vtable_80EE8DC
+            - vtable_80EE850
+            - vtable_80EE7C4
+            - vtable_80EFA1C
+        - vtable_80EECAC | pure
+            - vtable_80EEB98 | this may be the player entity
+        - vtable_80EEC5C | pure
+            - vtable_80EEB34
+        - vtable_80EED68
+        - vtable_80EEE08
+        - vtable_80EF718 | pure
+            - vtable_80EF6D8
+            - vtable_80EF698
+            - vtable_80EF658
+            - vtable_80EF618
+            - vtable_80EF5D8
+            - vtable_80EF598
+            - vtable_80EF558
+            - vtable_80EF518
+            - vtable_80EF4D8
+            - vtable_80EF498
+            - vtable_80EF458
+            - vtable_80EF418
+            - vtable_80EF3D8
+            - vtable_80EF398
+            - vtable_80EF358
+            - vtable_80EF318
+            - vtable_80EF2D8
+            - vtable_80EF298
+            - vtable_80EF258
+            - vtable_80EF218
+            - vtable_80EF1D8
+            - vtable_80EF198
+            - vtable_80EF158
+            - vtable_80EF118
+            - vtable_80EF0D8
+            - vtable_80EF058
+            - vtable_80EF018
+            - vtable_80EEFD8
+            - vtable_80EEF98
+            - vtable_80EEF58
+            - vtable_80EEF18
+            - vtable_80EEED8
+            - vtable_80EEE98
+            - vtable_80EEE58
+        - vtable_80EF868 | pure
+            - vtable_80EF824
+            - vtable_80EF7E0
+            - vtable_80EF79C
+            - vtable_80EF758
+        - vtable_80F0954
+    - vtable_80EF984
+    - vtable_80EF93C
+    - vtable_80EF8F4
+    - vtable_80EF8C0
+    - vtable_80EFAA8
+
+OTHER THING INHERITANCE TREE:
+- vtable_80F0990 (vtable_80EE6E0??) | pure
+    - vtable_80F0894
+
+AbstractEntity struct layout:
+    +00 | word   | some object pointer (has vtable at +00, parent vtable is vtable_80F0990)
+    +04 | ?      | ?
+    +06 | ?      | ?
+    +08 | word   | x position (Q16?)
+    +0C | word   | y position (Q16?)
+    +10 | word   | some object pointer (has vtable at +04) (related to display! has inline SpriteAnimator at +30)
+    +14 | word   | vtable (080EE790)
+
+UnkEntity (vtable_80EEDB8) struct layout:
+    +00 | AbstractEntity
+    +18 | word  | ?
+    +1C | word  | ?
+    +20 | byte  | ?
+    +21 | byte  | ?
+    +22 | short | ?
+    +24 | short | ?
+    +26 | short | ?
+    +28 | some object (constructor: 80326BC (lol))
+
+AbstractEntity vtable layout:
+    +08 | ~AbstractEntity();
+    +0C | struct { short left, top, right, bottom; } unk(); (default: returns { x, y, x, y })
+    +10 | ??
+    +14 | ??
+    +18 | void unk(); (default: calls [object at +10 vtable]+0C)
+    +1C | void unk(int unk); (default: calls [object at +10 vtable]+10 with argument)
+    +20 | void unk(); (default: sets byte at +06 to 1)
+    +24 | void unk(); (default: sets byte at +06 to 0)
+    +28 | int  unk(); (default: gets byte at +06)
+    +2C | void unk(); (default: calls [object at +10 vtable]+0C)
+    +30 | ??
+
+vtable_80EEDB8 layout:
+    +00 | AbstractEntity vtable
+        +0C default: returns { x-7, y-4, x+7, y+5 }
+    +34 | int unk(); (default: gets 0)
+    +38 | ??

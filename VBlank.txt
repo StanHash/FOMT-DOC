@@ -1,13 +1,15 @@
 Addresses are MFOMTU
 
+03000410 is a pointer to the current (single) instance of VBlankHook.
+
 VBlankHook struct layout:
     +00 | word  | pointer to instance of VBlankNode
     +04 | short | previous interrupt enable state
     +08 | word  | previous VBlankHook instance pointer
-    +0C | word  | vtable (80EE088)
+    +0C | word  | vtable (080EE088)
 
     +10 | word  | previous vblank interrupt handler function pointer
-    +14 | word  | VBlankHook vtable (80EE07C)
+    +14 | word  | VBlankHook vtable (080EE07C)
 
 VBlankNode struct layout:
     +00 | word | pointer to first node pointer (?)
