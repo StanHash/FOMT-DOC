@@ -1,0 +1,97 @@
+Addresses are MFOMTU
+
+I suspect table at 0810EBB8 being map/location data table
+
+table entry layout:
+    +00 | word  | pointer to ? (compressed)
+    +04 | word  | pointer to ? (compressed)
+    +08 | word  | pointer to ? (compressed)
+    +0C | word  | pointer to ? (compressed)
+    +10 | word  | pointer to ? (compressed)
+    +14 | word  | pointer to ? (compressed)
+    +18 | word  | pointer to ?
+    +1C | word  | pointer to ?
+    +20 | short | map width?
+    +22 | short | map height?
+    +24 | bool? | ?
+
+Unk struct layout (constructed by 080A9CC8, size: $94):
+    +00 | word | ? (default: $23A)
+    +04 | word | ? (default: $48)
+    +08 | word | ?
+    +0C | word | ?
+    +10 | word[3] | array of pointers to unknown objects (size: $7900 (!))
+    +1C | word[3] | array of pointers to unknown objects (size: $1E0)
+
+    +28 | byte | ?
+    +29 | byte | ?
+    +2A | byte | ?
+
+    +2C | word | pointer to unknown object (size: $F200 (!))
+
+    +30 | byte | ?
+    +31 | byte | ?
+    +32 | byte | ?
+
+    +34 | byte | ?
+    +35 | byte | ?
+    +36 | byte | ?
+
+    +38 | byte | ?
+    +39 | byte | ?
+    +3A | byte | ?
+
+    +3C | byte | ?
+    +3D | byte | ?
+    +3E | byte | ?
+
+    +40 | byte | ?
+    +41 | byte | ?
+    +42 | byte | ?
+
+    +44 | byte | ?
+    +45 | byte | ?
+    +46 | byte | ?
+
+    +48 | byte | ?
+    +49 | byte | ?
+    +4A | byte | ?
+
+    +4C | byte | ?
+    +4D | byte | ?
+    +4E | byte | ?
+
+    +50 | byte | ?
+    +51 | byte | ?
+    +52 | byte | ?
+
+    +54 | byte | ?
+    +55 | byte | ?
+    +56 | byte | ?
+
+    +58 | byte | ?
+
+    +5C | object inheriting VBlankNode
+
+    +8C | word | ?
+
+    +90 | word | vtable (080F0834)
+
+Unk struct layout (constructed by 080AB6A8, size: $BC):
+    +00 | Unk struct above (vtable: 080F086C)
+    +94 | word | ?
+    +98 | byte | ?
+    +9C | some object (size: $18)
+        +0C | word | pointer to unknown object (size: $18, may be the same object as this?)
+        +10 | word |
+        +14 | word | 
+
+    +B4 | byte | ?
+    +B5 | byte | ?
+    +B6 | byte | ?
+
+    +B8 | byte | ?
+    +B9 | byte | ?
+    +BA | byte | ?
+
+methinks all those 3 byte pairs are also some kind of struct

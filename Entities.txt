@@ -2,6 +2,12 @@ Addresses are MFOMTU
 
 Warning: not very pretty notes.
 
+FACING/DIRECTION VALUES:
+    00 = FACING_DOWN
+    01 = FACING_UP
+    02 = FACING_LEFT
+    03 = FACING_RIGHT
+
 ENTITY(?) INHERITANCE TREE (I might have missed some):
 - AbstractEntity (080EE790) | pure
     - AbstractActor (080EEDB8) | pure
@@ -121,7 +127,8 @@ PlayerActor struct layout (size: $C8):
 Big Object of which the pointer is at AbstractEntity+00 struct layout (constructed by 08017740):
     +0000 | vtable
     +0004 | some (important) inline object (constructed by 080B18C0, called by two constructors)
-        +0000 | word      | pointer to something
+        +0000 | word      | pointer to some object (collision related?)
+            +00 | word | 
         +0004 | word[$64] | array of pointer to entities
         +0194 | word      | ?
         +0198 | ??
@@ -159,14 +166,17 @@ Big Object of which the pointer is at AbstractEntity+00 struct layout (construct
     +1040 | some object
         +00 | word | pointer to [+1038]+10 (?)
         +04 | byte | ?
-    +1048 | word | ?
+    +1048 | word | pointer to something
+    +1050 | word | ?
+    +1074 | word | ?
+    +107C | word | ?
 
 AbstractEntity vtable layout:
     +08 | ~AbstractEntity();
     +0C | struct { short left, top, right, bottom; } unk(); (default: returns { x, y, x, y })
     +10 | ??
     +14 | ??
-    +18 | void unk(); (default: calls [object at +10 vtable]+0C) (this seems important)
+    +18 | void unk(); (default: calls [object at +10 vtable]+0C) (this seems important, maybe update?)
     +1C | void unk(int unk); (default: calls [object at +10 vtable]+10 with argument)
     +20 | void unk(); (default: sets byte at +06 to 1)
     +24 | void unk(); (default: sets byte at +06 to 0)
