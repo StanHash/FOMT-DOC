@@ -27,7 +27,7 @@ ENTITY(?) INHERITANCE TREE (I might have missed some):
         - vtable_80EF718 | pure
             - vtable_80EF6D8
             - vtable_80EF698
-            - vtable_80EF658
+            - PopuriActor (080EF658)
             - vtable_80EF618
             - vtable_80EF5D8
             - vtable_80EF598
@@ -81,8 +81,19 @@ I AM CONFUSING MYSELF A BIT TOO MUCH INHERITANCE TREE??:
 
 AbstractEntity struct layout (size: $18):
     +00 | word   | some object pointer (has vtable at +00)
-    +04 | ?      | ?
-    +06 | ?      | ?
+    +04 | short  | current map/location id of the entity?
+        id 000 is mother's hill
+        id 001 is beach
+        id 002 is farm
+        id 003 is forest
+        id 004 is church rear
+        id 005 is north mineral town
+        id 006 is rose square
+        id 007 is south mineral town
+        id 008 is mother's hill peak
+        id 01D is player's house
+        id 03A is spring mine
+    +06 | byte   | ?
     +08 | word   | x position (Q16?)
     +0C | word   | y position (Q16?)
     +10 | word   | some object pointer (has vtable at +04) (related to display! has inline SpriteAnimator at +30)
@@ -93,7 +104,7 @@ AbstractActor struct layout:
     +18 | word  | x speed? (Q16)
     +1C | word  | y speed? (Q16)
     +20 | byte  | anim identifier offset? DIRECTION?
-    +21 | byte  | ?
+    +21 | byte  | ? (set to arg r3 of constructor (08032498))
     +22 | short | anim identifier base?
     +24 | short | animation duration?
     +26 | short | animation duration?
@@ -102,16 +113,17 @@ AbstractActor struct layout:
 PlayerActor struct layout (size: $C8):
     +00 | Abstract(Player)Actor (vtable: 080EEB98)
     +34 | word | some object pointer, seems big and important
-    +38 | word | some object pointer
-    +3C | byte | ? (maybe some state identifier? getDesiredAnimId (0802D42C) has big switch on this value)
+    +38 | word | some object pointer, also seems important
+    +3C | byte | state identifier? (getDesiredAnimId (0802D42C) and 0802F3CC have big switches on this value)
         State 0 you move around normally (including when holding something)
         State 1 when holding A
         State 2 when holding B
         State 6 when sleeping because of idle time
+        State 9 when in tool usage animation?
         State D when dropping something?
         State 11 when lifting something?
         State 2C when jumping over a thing on the map
-        State 35 when blacked out?
+        State 35 when blacked out between days? state entered by the state 0 update method when the player finds itself colliding with stuff?
         State 7 and 2D have the player's (collision?) box be bigger ({ x-7, y-9, x+7, y+5 } instead of AbstractActor default)
     +3D | byte | ?
     +3E | byte | ?
@@ -120,8 +132,18 @@ PlayerActor struct layout (size: $C8):
     +60 | some object
         +00 | word  | some cstring pointer
         +04 | short | ?
+    +7A | byte  | ? set to 0 at the start of the state 0 update method
     +7C | short | ?
-    +B3 | byte  | ?
+    +88 | 
+    +A4 | byte  | ?
+    +A6 | short | ? set to 0 by the state 0 update method when switching to state 35 via collision
+    +B3 | byte  | ? something that counts down in 0802D0A0
+    +B4 | byte  | ? 
+    +C0 | byte  | ? set to 0 at the start of the state 0 update method
+    +C1 | byte  | ? sometimes set to 1 when state changes
+    +C3 | byte  | next state identifier? state 0 update method will set state to this if non-zero
+    +C4 | byte  | animation counter?
+    +C5 | byte  | ? seems to be something counting down. 0802F3CC does thing on this
     +C6 | byte  | ?
 
 Big Object of which the pointer is at AbstractEntity+00 struct layout (constructed by 08017740):
@@ -130,6 +152,13 @@ Big Object of which the pointer is at AbstractEntity+00 struct layout (construct
         +0000 | word      | pointer to some object (collision related?)
             +00 | word | 
         +0004 | word[$64] | array of pointer to entities
+            Entity 00 is Player
+            Entity 03 is Popuri
+            Entity 09 may be Manna
+            Entity 0E may be Harris
+            Entity 14 may be Doctor
+            Entity 19 may be Ann
+            Entity 1B may be Gotz
         +0194 | word      | ?
         +0198 | ??
         +0238 | array of $15 ($16? that wouldn't make much sense) objects (size: $84)
@@ -161,13 +190,26 @@ Big Object of which the pointer is at AbstractEntity+00 struct layout (construct
         +1020 | word | ?
         +1024 | word | ?
         +1028 | word | ?
-    +1038 | word | pointer to argument r1 of constructor (?)
+    +1038 | word | pointer to argument r1 of constructor (saved game state?) (this is the same object pointed at PlayerActor+34)
+        +0010 | some object capable of knowing the season (maybe the entire date/datetime?)
+            +08bit | 2bit | season identifier?
+            +10bit | 5bit | ?
+            +16bit | 5bit | ?
+        +01F4 | some object capable of knowing the player's house level/size
+            +00bit | 2bit | house size identifier
+        +0420 | some object?
+            +00bit | 1bit | ?
+        +0600 | some object?
+            +00bit | 1bit | ?
+        +1D80 | some object (popuri's data?)
+        +224C | bool | ?
     +103C | byte | ?
     +1040 | some object
         +00 | word | pointer to [+1038]+10 (?)
         +04 | byte | ?
     +1048 | word | pointer to something
-    +1050 | word | ?
+    +1050 | word | pointer to farm terrain data? (see 0801A214)
+    +1054 | word | pointer to some object
     +1074 | word | ?
     +107C | word | ?
 
@@ -184,19 +226,56 @@ AbstractEntity vtable layout:
     +2C | void unk(); (default: calls [object at +10 vtable]+0C)
     +30 | ?? (default: purefunc)
 
-AbstractActor vtable layout:
+AbstractActor vtable (080EEDB8) layout:
     +00 | AbstractEntity vtable
         +0C default: returns { x-7, y-4, x+7, y+5 }
-    +34 | int unk(); (default: gets 0)
-    +38 | ?? (default: nullsub)
+    +34 | int  unk(); (default: returns 0)
+    +38 | void unk(??); (default: nullsub)
+
+vtable_80EEA94 vtable layout:
+    +00 | AbstractActor vtable
+        +0C default: returns { x-7, y-9, x+7, y+5 }
+    +3C | void unk(??); (default: nullsub)
+    +40 | void unk(??); (default: nullsub)
+    +44 | int  unk(??); (default: returns 0)
+    +48 | int  unk(??); (default: returns 0)
+    +4C | int  unk(??); (default: returns 0)
+    +50 | int  unk(??); (default: returns 0)
+    +54 | int  unk(??); (default: returns 0)
+    +58 | int  unk(??); (default: returns 0)
+    +5C | int  unk(??); (default: returns 0)
+    +60 | int  unk(??); (default: returns 0)
+    +64 | void unk(??); (default: nullsub)
+    +68 | void unk(??); (default: nullsub)
+    +6C | void unk(??); (default: nullsub)
+    +70 | void unk(??); (default: nullsub)
+    +74 | int  unk(??); (default: returns 5)
+    +78 | int  unk(??); (default: returns 5)
+    +7C | void unk(??); (default: nullsub)
+    +80 | void unk(??); (default: nullsub)
+    +84 | void unk(int facing, int unk); (default: nullsub, called at 0802D2A6)
+    +88 | ?? (default: purefunc)
 
 AbstractPlayerActor vtable layout:
     +00 | AbstractActor vtable
     +40 | bool unk(void);
     +64 | void modifyStaminaFatigue(int stamina, int fatigue); (adds to the respective fields)
+    +6C | void unk(void); (sets +A4 and +88 to 0, sets anim to 192 (standing))
 
 Big Object vtable layout:
     +08 | <destructor>
+    +2C | int getLocationPxWidth(int location);
+    +30 | int getLocationPxHeight(int location);
+    +34 | struct { void* unk; void* unk; short width, height; } getLocationTerrain(int location); (does lots of things but in the end gets { mapData.unk18, mapData.unk1C, mapData.width, mapData.height })
     +38 | void makeActorMaybe(int identifier);
+    +40 | AbstractActor* getActor(int identifier); (maybe)
     +64 | AbstractSprite* getItemSprite(void);
     +68 | AbstractSprite* getMapActorSprite(void);
+
+080350C0 | ScriptedActor ScriptedActor_construct(GameObject*, CharacterData*, GameData*, ActorScript*, int unk, int unk, int unk)
+ScriptedActor has vtable_80EF718
+
+EntityLocation struct layout (given to AbstractEntity constructor as arg r2):
+    +000bit | 10bit | location identifier
+    +010bit | 16bit | x pixel position
+    +026bit | 16bit | y pixel position

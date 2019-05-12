@@ -1,6 +1,9 @@
 Addresses are MFOMTU
 
-I suspect table at 0810EBB8 being map/location data table
+I suspect table at 0810EBB8 being map data table
+
+MAP V LOCATION:
+    A Location is 
 
 table entry layout:
     +00 | word  | pointer to ? (compressed)
@@ -9,13 +12,17 @@ table entry layout:
     +0C | word  | pointer to ? (compressed)
     +10 | word  | pointer to ? (compressed)
     +14 | word  | pointer to ? (compressed)
-    +18 | word  | pointer to ?
-    +1C | word  | pointer to ?
+    +18 | word  | pointer to terrain data?
+    +1C | word  | pointer to terrain map?
     +20 | short | map width?
     +22 | short | map height?
     +24 | bool? | ?
 
-Unk struct layout (constructed by 080A9CC8, size: $94):
+The terrain map is an array of bytes, that index a position to an index in the terrain data array (y * width + x)
+The terrain data is an array of 4 byte entries that describle terrain properties (maybe?)
+If the terrain map is 0, the terrain data is derectly indexed by position (again, y * width + x).
+
+Unk struct layout (constructed by 080A9CC8, size: $94, probably related to farm layout):
     +00 | word | ? (default: $23A)
     +04 | word | ? (default: $48)
     +08 | word | ?
