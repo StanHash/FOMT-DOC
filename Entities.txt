@@ -24,7 +24,7 @@ ENTITY(?) INHERITANCE TREE (I might have missed some):
             - vtable_80EEB34
         - vtable_80EED68
         - vtable_80EEE08
-        - vtable_80EF718 | pure
+        - ScheduledActor (080EF718) | pure
             - vtable_80EF6D8
             - vtable_80EF698
             - PopuriActor (080EF658)
@@ -80,8 +80,8 @@ I AM CONFUSING MYSELF A BIT TOO MUCH INHERITANCE TREE??:
     - vtable_80EE404
 
 AbstractEntity struct layout (size: $18):
-    +00 | word   | some object pointer (has vtable at +00)
-    +04 | short  | current map/location id of the entity?
+    +00 | word  | pointer to Game object
+    +04 | short | current map/location id of the entity?
         id 000 is mother's hill
         id 001 is beach
         id 002 is farm
@@ -93,18 +93,18 @@ AbstractEntity struct layout (size: $18):
         id 008 is mother's hill peak
         id 01D is player's house
         id 03A is spring mine
-    +06 | byte   | ?
-    +08 | word   | x position (Q16?)
-    +0C | word   | y position (Q16?)
-    +10 | word   | some object pointer (has vtable at +04) (related to display! has inline SpriteAnimator at +30)
-    +14 | word   | vtable (080EE790)
+    +06 | byte  | ? is doing something special bool?
+    +08 | word  | x position (Q16?)
+    +0C | word  | y position (Q16?)
+    +10 | word  | some object pointer (has vtable at +04) (related to display! has inline SpriteAnimator at +30)
+    +14 | word  | vtable (080EE790)
 
 AbstractActor struct layout:
     +00 | AbstractEntity (vtable: 080EEDB8)
     +18 | word  | x speed? (Q16)
     +1C | word  | y speed? (Q16)
     +20 | byte  | anim identifier offset? DIRECTION?
-    +21 | byte  | ? (set to arg r3 of constructor (08032498))
+    +21 | byte  | ? (set to arg r3 of constructor (08032498), both PlayerActor and ScriptedActor constructors give 2)
     +22 | short | anim identifier base?
     +24 | short | animation duration?
     +26 | short | animation duration?
@@ -113,7 +113,7 @@ AbstractActor struct layout:
 PlayerActor struct layout (size: $C8):
     +00 | Abstract(Player)Actor (vtable: 080EEB98)
     +34 | word | some object pointer, seems big and important
-    +38 | word | some object pointer, also seems important
+    +38 | word | GameData pointer
     +3C | byte | state identifier? (getDesiredAnimId (0802D42C) and 0802F3CC have big switches on this value)
         State 0 you move around normally (including when holding something)
         State 1 when holding A
@@ -146,11 +146,12 @@ PlayerActor struct layout (size: $C8):
     +C5 | byte  | ? seems to be something counting down. 0802F3CC does thing on this
     +C6 | byte  | ?
 
-Big Object of which the pointer is at AbstractEntity+00 struct layout (constructed by 08017740):
+Game Object struct layout (constructed by 08017740):
     +0000 | vtable
     +0004 | some (important) inline object (constructed by 080B18C0, called by two constructors)
         +0000 | word      | pointer to some object (collision related?)
-            +00 | word | 
+            +00 | word | some location id maybe?
+            +04 | word | some map id
         +0004 | word[$64] | array of pointer to entities
             Entity 00 is Player
             Entity 03 is Popuri
@@ -191,17 +192,20 @@ Big Object of which the pointer is at AbstractEntity+00 struct layout (construct
         +1024 | word | ?
         +1028 | word | ?
     +1038 | word | pointer to argument r1 of constructor (saved game state?) (this is the same object pointed at PlayerActor+34)
-        +0010 | some object capable of knowing the season (maybe the entire date/datetime?)
-            +08bit | 2bit | season identifier?
-            +10bit | 5bit | ?
-            +16bit | 5bit | ?
+        +0008 | some object
+            +08 | some object capable of knowing the season (maybe the entire date/datetime?)
+                +08bit | 2bit | season identifier?
+                +10bit | 5bit | day?
+                +16bit | 5bit | hours
+                +21bit | 6bit | minutes; advances by 1 every 25 frames?
+        +0047 | ???? a value (bits) (check 0800E9E0)
         +01F4 | some object capable of knowing the player's house level/size
             +00bit | 2bit | house size identifier
         +0420 | some object?
             +00bit | 1bit | ?
         +0600 | some object?
             +00bit | 1bit | ?
-        +1D80 | some object (popuri's data?)
+        +1D80 | popuri's data
         +224C | bool | ?
     +103C | byte | ?
     +1040 | some object
@@ -224,7 +228,7 @@ AbstractEntity vtable layout:
     +24 | void unk(); (default: sets byte at +06 to 0)
     +28 | int  unk(); (default: gets byte at +06)
     +2C | void unk(); (default: calls [object at +10 vtable]+0C)
-    +30 | ?? (default: purefunc)
+    +30 | ?? (default: purefunc) (probably makes the graphical object for this entity)
 
 AbstractActor vtable (080EEDB8) layout:
     +00 | AbstractEntity vtable
@@ -262,15 +266,18 @@ AbstractPlayerActor vtable layout:
     +64 | void modifyStaminaFatigue(int stamina, int fatigue); (adds to the respective fields)
     +6C | void unk(void); (sets +A4 and +88 to 0, sets anim to 192 (standing))
 
-Big Object vtable layout:
-    +08 | <destructor>
-    +2C | int getLocationPxWidth(int location);
-    +30 | int getLocationPxHeight(int location);
-    +34 | struct { void* unk; void* unk; short width, height; } getLocationTerrain(int location); (does lots of things but in the end gets { mapData.unk18, mapData.unk1C, mapData.width, mapData.height })
-    +38 | void makeActorMaybe(int identifier);
-    +40 | AbstractActor* getActor(int identifier); (maybe)
-    +64 | AbstractSprite* getItemSprite(void);
-    +68 | AbstractSprite* getMapActorSprite(void);
+Game Object vtable layout:
+    +08  | <destructor>
+    +2C  | int getLocationPxWidth(int location);
+    +30  | int getLocationPxHeight(int location);
+    +34  | struct { void* unk; void* unk; short width, height; } getLocationTerrain(int location); (does lots of things but in the end gets { mapData.unk18, mapData.unk1C, mapData.width, mapData.height })
+    +38  | void makeActorMaybe(int identifier);
+    +40  | AbstractActor* getActor(int identifier); (maybe)
+    +64  | AbstractSprite* getItemSprite(void);
+    +68  | AbstractSprite* getMapActorSprite(void);
+    +120 | bool unk(EntityLocation*);
+    +144 | Unk* getUnk(void); (gets [+1038]+08)
+    +14C | Unk* getUnk(void); (gets [[+1054]+04]+D0, MusicPlayer related)
 
 080350C0 | ScriptedActor ScriptedActor_construct(GameObject*, CharacterData*, GameData*, ActorScript*, int unk, int unk, int unk)
 ScriptedActor has vtable_80EF718
@@ -279,3 +286,59 @@ EntityLocation struct layout (given to AbstractEntity constructor as arg r2):
     +000bit | 10bit | location identifier
     +010bit | 16bit | x pixel position
     +026bit | 16bit | y pixel position
+
+ActorLocation struct layout:
+    +00 | EntityLocation
+    +06 | byte | facing
+
+CharacterData struct layout:
+    +000bit | ActorLocation
+    +096bit | 5bit  | ?
+    +101bit | 5bit  | ?
+    +106bit | 5bit  | ?
+    +111bit | 10bit | ?
+    +144bit | short | animation id (if $FFFF, ScriptedActor constructor will take argument 5 ([sp+04]))
+
+ScheduledActor struct layout:
+    +00 | AbstractActor
+    +30 | word  | pointer to character data (name tbd)
+    +34 | word  | pointer to game data (name tbd)
+    +38 | word  | pointer to actor script
+    +3C | byte  | current schedule identifier? (default: CharacterData+096bit)
+    +3D | byte  | running schedule entry id (-1?)? (default: CharacterData+101bit)
+    +3E | byte  | running script entry id? (default: CharacterData+106bit)
+    +3F | byte  | ?
+    +40 | short | time since last script point (in frames?)? (default: CharacterData+111bit)
+    +42 | short | ? (default: arg 7 ([sp+0C]) of constructor)
+    +44 | short | some animation id? (default: arg 5 ([sp+04]) of constructor)
+    +46 | short | some animation id? (default; arg 6 ([sp+08]) of constructor)
+
+ScheduledActor vtable layout:
+    +00 | AbstractActor vtable
+    +3C | void unk(int unk); (schedule update?)
+
+ActorScript:
+    +00 | word  | function pointer of signature int(*)(GameData*);
+    +04 | word? | ?
+    +08 | word  | pointer to an array of pointers to schedules (indexed by [ScriptedActor+3C])
+
+ActorSchedule:
+    +00 | short | size of ScheduleEntry array
+    +04 | word  | pointer to ScheduleEntry array
+
+ScheduleEntry:
+    +00 | short | time in minutes starting from 6:00 AM (hour*60 + minute)
+    +04 | word  | pointer to script header
+
+ScriptHeader:
+    +00 | word  | pointer to point array
+    +04 | short | size of point array
+    +06 | short | initial x position
+    +08 | short | initial y position
+    +0A | byte  | ?
+    +0B | byte  | a bunch of things (see 080353CE)
+
+ScriptPoint:
+    +00 | short | ? something timing related
+    +02 | short | new coord
+    +04 | byte  | if non-zero then +02 is a y coord point else x
