@@ -91,6 +91,7 @@ AbstractEntity struct layout (size: $18):
         id 006 is rose square
         id 007 is south mineral town
         id 008 is mother's hill peak
+        id 00F is shop interior
         id 01D is player's house
         id 03A is spring mine
     +06 | byte  | ? is doing something special bool?
@@ -149,17 +150,55 @@ PlayerActor struct layout (size: $C8):
 Game Object struct layout (constructed by 08017740):
     +0000 | vtable
     +0004 | some (important) inline object (constructed by 080B18C0, called by two constructors)
-        +0000 | word      | pointer to some object (collision related?)
+        +0000 | word      | pointer to some object
             +00 | word | some location id maybe?
             +04 | word | some map id
+            +08 | word | camera x (Q16)
+            +0C | word | camera y (Q16)
         +0004 | word[$64] | array of pointer to entities
             Entity 00 is Player
+            Entity 01 is Lillia
+            Entity 02 is Rick
             Entity 03 is Popuri
-            Entity 09 may be Manna
-            Entity 0E may be Harris
-            Entity 14 may be Doctor
-            Entity 19 may be Ann
-            Entity 1B may be Gotz
+            Entity 04 is Barley
+            Entity 05 is May
+            Entity 06 is Saibara
+            Entity 07 is Gray
+            Entity 08 is Duke
+            Entity 09 is Manna
+            Entity 0A is Basil
+            Entity 0B is Anna
+            Entity 0C is Mary
+            Entity 0D is Thomas
+            Entity 0E is Harris
+            Entity 0F is Ellen
+            Entity 10 is Stu
+            Entity 11 is Jeff
+            Entity 12 is Sasha
+            Entity 13 ?
+            Entity 14 is Doctor
+            Entity 15 is Elli
+            Entity 16 is Carter
+            Entity 17 is Cliff
+            Entity 18 is Doug
+            Entity 19 is Ann
+            Entity 1A ?
+            Entity 1B is Gotz
+            Entity 1C ?
+            Entity 1D ?
+            Entity 1E ?
+            Entity 1F is Harvest Goddess
+            Entity 20 ?
+            Entity 21 ?
+            Entity 22 ?
+            Entity 23 ?
+            Entities 24-2A are Harvest Sprites
+            Entity 2B is your Dog
+            Entity 2C is your Horse
+            ???
+            Entities 55-57 are Poultry Farm Chickens
+            Entities 58-5A are Yodel Farm Cows
+            Entity 5B is Hannah
         +0194 | word      | ?
         +0198 | ??
         +0238 | array of $15 ($16? that wouldn't make much sense) objects (size: $84)
@@ -268,6 +307,7 @@ AbstractPlayerActor vtable layout:
 
 Game Object vtable layout:
     +08  | <destructor>
+    +20  | void setCamera?(int x, int y);
     +2C  | int getLocationPxWidth(int location);
     +30  | int getLocationPxHeight(int location);
     +34  | struct { void* unk; void* unk; short width, height; } getLocationTerrain(int location); (does lots of things but in the end gets { mapData.unk18, mapData.unk1C, mapData.width, mapData.height })
