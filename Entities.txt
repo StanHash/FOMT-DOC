@@ -12,8 +12,8 @@ ENTITY(?) INHERITANCE TREE (I might have missed some):
 - AbstractEntity (080EE790) | pure
     - AbstractActor (080EEDB8) | pure
         - vtable_80EEA94 | pure
-            - vtable_80EEA08
-            - vtable_80EE968
+            - DogActor (080EEA08)
+            - HorseActor (080EE968)
             - vtable_80EE8DC
             - vtable_80EE850
             - vtable_80EE7C4
@@ -25,15 +25,15 @@ ENTITY(?) INHERITANCE TREE (I might have missed some):
         - vtable_80EED68
         - vtable_80EEE08
         - ScheduledActor (080EF718) | pure
-            - vtable_80EF6D8
-            - vtable_80EF698
+            - LilliaActor (080EF6D8)
+            - RickActor (080EF698)
             - PopuriActor (080EF658)
-            - vtable_80EF618
-            - vtable_80EF5D8
-            - vtable_80EF598
-            - vtable_80EF558
-            - vtable_80EF518
-            - vtable_80EF4D8
+            - BarleyActor (080EF618)
+            - MayActor (080EF5D8)
+            - SaibaraActor (080EF598)
+            - GrayActor (080EF558)
+            - DukeActor (080EF518)
+            - MannaActor (080EF4D8)
             - vtable_80EF498
             - vtable_80EF458
             - vtable_80EF418
@@ -55,14 +55,14 @@ ENTITY(?) INHERITANCE TREE (I might have missed some):
             - vtable_80EEFD8
             - vtable_80EEF98
             - vtable_80EEF58
-            - vtable_80EEF18
+            - GoddessActor (080EEF18)
             - vtable_80EEED8
             - vtable_80EEE98
             - vtable_80EEE58
         - vtable_80EF868 | pure
             - vtable_80EF824
             - vtable_80EF7E0
-            - vtable_80EF79C
+            - HannahActor (080EF79C)
             - vtable_80EF758
         - vtable_80F0954
     - vtable_80EF984
@@ -135,7 +135,12 @@ PlayerActor struct layout (size: $C8):
         +04 | short | ?
     +7A | byte  | ? set to 0 at the start of the state 0 update method
     +7C | short | ?
-    +88 | 
+    +88 | some object
+        +00 | byte | non-zero if has something in hand?
+        +01 | byte | 
+        +04 | word | 
+        +08 | word | 
+        +14 | word | 
     +A4 | byte  | ?
     +A6 | short | ? set to 0 by the state 0 update method when switching to state 35 via collision
     +B3 | byte  | ? something that counts down in 0802D0A0
@@ -151,8 +156,8 @@ Game Object struct layout (constructed by 08017740):
     +0000 | vtable
     +0004 | some (important) inline object (constructed by 080B18C0, called by two constructors)
         +0000 | word      | pointer to some object
-            +00 | word | some location id maybe?
-            +04 | word | some map id
+            +00 | word | some location id?
+            +04 | word | some map id?
             +08 | word | camera x (Q16)
             +0C | word | camera y (Q16)
         +0004 | word[$64] | array of pointer to entities
@@ -175,7 +180,7 @@ Game Object struct layout (constructed by 08017740):
             Entity 10 is Stu
             Entity 11 is Jeff
             Entity 12 is Sasha
-            Entity 13 ?
+            Entity 13 is Karen
             Entity 14 is Doctor
             Entity 15 is Elli
             Entity 16 is Carter
@@ -184,8 +189,8 @@ Game Object struct layout (constructed by 08017740):
             Entity 19 is Ann
             Entity 1A ?
             Entity 1B is Gotz
-            Entity 1C ?
-            Entity 1D ?
+            Entity 1C is Zack
+            Entity 1D is Won
             Entity 1E ?
             Entity 1F is Harvest Goddess
             Entity 20 ?
@@ -195,7 +200,7 @@ Game Object struct layout (constructed by 08017740):
             Entities 24-2A are Harvest Sprites
             Entity 2B is your Dog
             Entity 2C is your Horse
-            ???
+            Entities 2D-54 are player animals?
             Entities 55-57 are Poultry Farm Chickens
             Entities 58-5A are Yodel Farm Cows
             Entity 5B is Hannah
@@ -238,6 +243,12 @@ Game Object struct layout (constructed by 08017740):
                 +16bit | 5bit | hours
                 +21bit | 6bit | minutes; advances by 1 every 25 frames?
         +0047 | ???? a value (bits) (check 0800E9E0)
+        +0054 | some object (related to player's held item?)
+            +00bit | 3bit  | the nature of what is held?
+                00 is item
+            +03bit | 1bit  | has held item bool?
+            +16bit | 8bit? | item id? this may be an union discriminated by [+00bit]
+            +24bit | 8bit? | ?
         +01F4 | some object capable of knowing the player's house level/size
             +00bit | 2bit | house size identifier
         +0420 | some object?
@@ -259,7 +270,7 @@ Game Object struct layout (constructed by 08017740):
 AbstractEntity vtable layout:
     +08 | ~AbstractEntity();
     +0C | struct { short left, top, right, bottom; } unk(); (default: returns { x, y, x, y })
-    +10 | ??
+    +10 | ?? init?
     +14 | ??
     +18 | void unk(); (default: calls [object at +10 vtable]+0C) (this seems important, maybe update?)
     +1C | void unk(int unk); (default: calls [object at +10 vtable]+10 with argument)
@@ -306,15 +317,18 @@ AbstractPlayerActor vtable layout:
     +6C | void unk(void); (sets +A4 and +88 to 0, sets anim to 192 (standing))
 
 Game Object vtable layout:
-    +08  | <destructor>
-    +20  | void setCamera?(int x, int y);
-    +2C  | int getLocationPxWidth(int location);
-    +30  | int getLocationPxHeight(int location);
-    +34  | struct { void* unk; void* unk; short width, height; } getLocationTerrain(int location); (does lots of things but in the end gets { mapData.unk18, mapData.unk1C, mapData.width, mapData.height })
-    +38  | void makeActorMaybe(int identifier);
-    +40  | AbstractActor* getActor(int identifier); (maybe)
-    +64  | AbstractSprite* getItemSprite(void);
-    +68  | AbstractSprite* getMapActorSprite(void);
+    +008 | <destructor>
+    +014 | int getActiveLocation(void);
+    +018 | int getCameraX(void);
+    +01C | int getCameraY(void);
+    +020 | void setCamera?(int x, int y);
+    +02C | int getLocationPxWidth(int location);
+    +030 | int getLocationPxHeight(int location);
+    +034 | struct { void* unk; void* unk; short width, height; } getLocationTerrain(int location); (does lots of things but in the end gets { mapData.unk18, mapData.unk1C, mapData.width, mapData.height })
+    +038 | void makeActorMaybe(int identifier);
+    +040 | AbstractActor* getActor(int identifier); (maybe)
+    +064 | AbstractSprite* getItemSprite(void);
+    +068 | AbstractSprite* getMapActorSprite(void);
     +120 | bool unk(EntityLocation*);
     +144 | Unk* getUnk(void); (gets [+1038]+08)
     +14C | Unk* getUnk(void); (gets [[+1054]+04]+D0, MusicPlayer related)
