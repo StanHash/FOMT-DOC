@@ -1,0 +1,29 @@
+Addresses are MFOMTU
+
+Actor Schedules are interpreted by ScheduledActor instances (see Entities.txt).
+
+ActorScheduleHeader:
+    +00 | word  | function pointer of signature int(*)(GameData*); (?)
+    +04 | word? | ?
+    +08 | word  | pointer to an array of pointers to schedules (indexed by [ScheduledActor+3C])
+
+ActorSchedule:
+    +00 | short | size of ScheduleEntry array
+    +04 | word  | pointer to ScheduleEntry array
+
+ScheduleEntry:
+    +00 | short | time in minutes starting from 6:00 AM (hour*60 + minute)
+    +04 | word  | pointer to script header
+
+ScriptHeader:
+    +00 | word  | pointer to point array
+    +04 | short | size of point array
+    +06 | short | initial x position
+    +08 | short | initial y position
+    +0A | byte  | ?
+    +0B | byte  | a bunch of things (see 080353CE)
+
+ScriptPoint:
+    +00 | short | ? something timing related
+    +02 | short | new coord
+    +04 | byte  | if non-zero then +02 is a y coord point else x

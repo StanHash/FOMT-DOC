@@ -204,7 +204,7 @@ Game Object struct layout (constructed by 08017740):
             Entities 55-57 are Poultry Farm Chickens
             Entities 58-5A are Yodel Farm Cows
             Entity 5B is Hannah
-        +0194 | word      | ?
+        +0194 | word | ?
         +0198 | ??
         +0238 | array of $15 ($16? that wouldn't make much sense) objects (size: $84)
             +00 | byte      | ?
@@ -255,17 +255,30 @@ Game Object struct layout (constructed by 08017740):
             +00bit | 1bit | ?
         +0600 | some object?
             +00bit | 1bit | ?
+        +1BE8 | some object
+            ... (0800E584)
+            +24 | ? (0800E9AC)
         +1D80 | popuri's data
         +224C | bool | ?
     +103C | byte | ?
     +1040 | some object
         +00 | word | pointer to [+1038]+10 (?)
         +04 | byte | ?
-    +1048 | word | pointer to something
-    +1050 | word | pointer to farm terrain data? (see 0801A214)
-    +1054 | word | pointer to some object
-    +1074 | word | ?
-    +107C | word | ?
+    +1048 | word    | pointer to something? no? (see 080177AA)
+    +104C | byte    | ? (080177D6)
+    +1050 | word    | pointer to farm terrain data? (see 0801A214) (size: $B000; see 080177E0)
+    +1054 | word    | pointer to some object (initialized to constructor argument in r2)
+    +1058 | word    | ? (080177F4)
+    +105C | word    | ? (080177FA)
+    +1064 | word    | ? (08017800)
+    +1068 | word    | ? (08017808)
+    +1074 | word[2] | ?
+    +107C | word    | ?
+    +1080 | array of 4 objects (size: $C)
+        +08bit | 2bit | ?
+        +0C    | word | ?
+    +10B0 | word[6] | ?
+    +10C8 | byte    |
 
 AbstractEntity vtable layout:
     +08 | ~AbstractEntity();
@@ -370,29 +383,3 @@ ScheduledActor struct layout:
 ScheduledActor vtable layout:
     +00 | AbstractActor vtable
     +3C | void unk(int unk); (schedule update?)
-
-ActorScript:
-    +00 | word  | function pointer of signature int(*)(GameData*);
-    +04 | word? | ?
-    +08 | word  | pointer to an array of pointers to schedules (indexed by [ScriptedActor+3C])
-
-ActorSchedule:
-    +00 | short | size of ScheduleEntry array
-    +04 | word  | pointer to ScheduleEntry array
-
-ScheduleEntry:
-    +00 | short | time in minutes starting from 6:00 AM (hour*60 + minute)
-    +04 | word  | pointer to script header
-
-ScriptHeader:
-    +00 | word  | pointer to point array
-    +04 | short | size of point array
-    +06 | short | initial x position
-    +08 | short | initial y position
-    +0A | byte  | ?
-    +0B | byte  | a bunch of things (see 080353CE)
-
-ScriptPoint:
-    +00 | short | ? something timing related
-    +02 | short | new coord
-    +04 | byte  | if non-zero then +02 is a y coord point else x

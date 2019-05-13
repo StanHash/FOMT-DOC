@@ -43,6 +43,10 @@ inheritance and vtables:
     or, in case of multiple inheritance:
         vtable_<ParentName>_<ChildName> : vtable of <ChildName> for <ParentName>
 
+std::auto_ptr:
+    I see a lot of word-long object holding pointers that seem to cause astronomical amounts of dead code to be generated.
+    I assume those are std::auto_ptr instances and will refer to those as such.
+
 init_array:
     It's empty, but it exists (it's at MFOMTU:080F0B60).
     Funnily enough; the code for handling it (in crt0) is broken:

@@ -4,3 +4,32 @@ The game handles different screens and whatnot using "Scene" objects (I'm borrow
 
 Running a scene implies a full run until it ends (not just a single frame or something like that).
 
+Scenes are weird because there's like two kind of objects that look very similar and until recently I thought they both were the same Scene object but are actually unrelated (in terms of type inheritance).
+
+struct Scene    { virtual ~Scene();    virtual std::auto_ptr<NotScene> run(); };
+struct NotScene { virtual ~NotScene(); virtual std::auto_ptr<Scene>    run(); };
+
+void doMainLoop(std::auto_ptr<Scene> scene)
+{
+    // This function generates a lot of dead code
+
+    while (scene.get())
+    {
+        // constructing from a temporary object, temporary's lifetime ends, destructor called
+        std::auto_ptr<NotScene> notScene(scene->run());
+
+        // need to check and free the currently held pointer
+        scene.reset();
+
+        if (!notScene.get())
+            break;
+
+        // operator = needs to check and free the currently held pointer
+        // assigning from a temporary, temporary's lifetime ends, destructor called
+        scene = notScene->run();
+
+        // notScene goes out of scope, destructor called
+    }
+
+    // scene goes out of scope, destructor called
+}
