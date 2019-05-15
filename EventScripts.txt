@@ -1,0 +1,99 @@
+Addresses are MFOMTU
+
+At 081014BC is a big pointer array to data which *I think* are event script data
+(I already was wrong once (see ActorSchedules.txt) so I don't be surprised if I am a second time)
+
+The format for those data chunks is literally RIFF (!) (https://en.wikipedia.org/wiki/Resource_Interchange_File_Format)
+
+RIFF "SCR "
+    subchunk "CODE" (probably contains script bytecode)
+        +00 | word | size of following chunk (seems redundant but sure)
+        +04 | .... | actual data
+    subchunk "JUMP" (not always present, unknown purpose (jump tables? command 24 reads those))
+        +00 | word | ?
+        +04 | .... | ?
+    subchunk "STR " (definitely contains strings/text data)
+        +00 | word   | number of entries in the following table
+        +04 | word[] | string offset table. Each string is located at data + value in this table.
+        +XX | byte[] | actual string data
+
+a struct layout (0803F0D8 populates it from script data):
+    +000 | word      | non-zero if properly initialized?
+    +004 | word      | address of script code data. Construction will fail if this is non-zero
+    +008 | word      | current offset within script data?
+    +00C | word      | size of script code data?
+    +010 | word      | number of entries in the string (offset) table
+    +014 | word      | address of the string offset table
+    +018 | word      | address of string data
+    +01C | word      | first word of "JUMP" section, if any
+    +020 | word      | address of "JUMP" section +04
+    +024 | word[100] | ascending stack?
+    +1B4 | word      | index of first free stack slot?
+    +1B8 | word[100] | memory?
+    +348 | word      | ?
+    +34C | word      | vtable
+
+vtable layout:
+    +08 | <destructor>
+    +0C | 
+    +10 | int usercommand(int id);
+
+maybe 0803F2CC does interpretation?
+
+Each instruction starts with a byte:
+    +00bit | 7bit | instruction id
+    +07bit | 1bit | for instructions with immediate operands, if set, the value of the operand will intead be imm + [+348] (instead of just imm)
+
+ins 00: (nop)
+    do nothing
+
+ins 01: (setmem)
+    ok this is weird
+    so +24 is some kind of stack, and +1B4 is like sp
+    what this does is read the *second* topmost value from the stack, and interprets it as an offset in the +1B8 array, which is probably something more like random access memory
+    it then stores the topmost value from the stack to both the offset in the +1B8 array *and* the second topmost stack slot
+    and also reduces the stack pointer by 1
+
+    So something like this:
+        IN:  STACK = { ..., OFF, VAL }; MEMORY = { ... }
+        OUT: STACK = { ..., VAL };      MEMORY = { ..., [OFF] = VAL, ... }
+
+    This is amazing
+    Is this an existing language?
+
+ins 02: (addmem)
+    IN:  STACK = { ..., OFF, OP2 };  MEMORY = { ..., [OFF] = OP1, ... }
+    OUT: STACK = { ..., OP1 + OP2 }; MEMORY = { ..., [OFF] = OP1 + OP2, ... }
+
+ins 03: (submem)
+    IN:  STACK = { ..., OFF, OP2 };  MEMORY = { ..., [OFF] = OP1, ... }
+    OUT: STACK = { ..., OP1 - OP2 }; MEMORY = { ..., [OFF] = OP1 - OP2, ... }
+
+ins 04: (mulmem) (mem_op * stack_op)
+ins 05: (divmem) (mem_op / stack_op)
+ins 06: (modmem) (mem_op % stack_op)
+
+ins 07: (addstk)
+    IN:  STACK = { ..., OP1, OP2 }
+    OUT: STACK = { ..., OP1 + OP2 }
+
+ins 08: (substk)
+    IN:  STACK = { ..., OP1, OP2 }
+    OUT: STACK = { ..., OP1 - OP2 }
+
+ins 09: (mulstk)
+ins 0A: (divstk)
+ins 0B: (modstk)
+
+ins 0C: (landstk)
+    IN:  STACK = { ..., OP1, OP2 }
+    OUT: STACK = { ..., OP1 && OP2 }
+
+ins 0D: (lorrstk)
+
+ins 0E: (inc)
+ins 0F: (dec)
+ins 10: (neg)
+ins 11: (lnot)
+
+

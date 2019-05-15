@@ -33,7 +33,7 @@ VBlankNodeList vtable layout:
     +1C | ??
     +20 | void swap(VBlankNodeList*)
 
-Struct made in 80089E8 layout:
+VBlankHandleCore struct layout:
     +00 | SoundVSyncVNode : VBlankNode
     +0C | VBlankRootNodeList : VBlankNodeList
     +28 | SoundMainVNode : VBlankNode

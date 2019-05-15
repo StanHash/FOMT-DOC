@@ -7,12 +7,38 @@ Running a scene implies a full run until it ends (not just a single frame or som
 Scenes are weird because there's like two kind of objects that look very similar and until recently I thought they both were the same Scene object but are actually unrelated (in terms of type inheritance).
 
 AbstractScene struct layout:
-    +00 | word | vtable (yes)
+    +00 | word | vtable (080EDF0C)
 
-Scene (vtable: 080EE138) struct layout (this scene manages other scenes, as its run method calls doMainLoop):
-    +000 | AbstractScene
-    +004 | word | pointer to something (GameData?)
-    +364 | byte | ?
+GameScene struct layout (this scene manages other scenes, as its run method calls doMainLoop):
+    +000       | AbstractScene (vtable: 080EE138)
+    +004       | word | GameData pointer
+    +008       | some object (seems important)
+        +000 | word        | ?
+        +024 | byte[$190]? | ?
+        +1B4 | word        | ?
+        +34C | word        | vtable (080EFD50 -> 080EFD64)
+        +350 | word        | GameData pointer
+        +354 | word        | ?
+        +358 | word        | ?
+    +364       | byte | ?
+    +368       | word | ? (default: $AB)
+    +36C       | byte | ? (may be struct with next field)
+    +370       | word | ? (default: $1D)
+    +374+00bit | 5bit | ? (default: 6)
+    +374+05bit | 6bit | ?
+    +378       | word | ?
+    +38C       | word | ?
+    +4D0       | word | ?
+    +4DC       | array of 6 objects (size: $C)
+        +00+00bit | 2bit | ?
+        +02       | EntityLocation? (default: loc=23A, x=0, y=0)
+    +524       | array of 4 objects (size: $C)
+        +00 | EntityLocation? (default: loc=23A, x=0, y=0)
+        +06 | byte  | ?
+        +08 | short | ?
+        +0A | short | ?
+
+I just discovered 080E06A4 and now I am scared
 
 struct Scene    { virtual ~Scene();    virtual std::auto_ptr<NotScene> run(); };
 struct NotScene { virtual ~NotScene(); virtual std::auto_ptr<Scene>    run(); };
