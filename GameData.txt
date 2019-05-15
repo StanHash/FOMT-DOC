@@ -1,0 +1,254 @@
+Addresses are MFOMTU
+
+I'll make the assumption that the object referenced at [GameObject+1038]/[PlayerActor+38] and the object constructed by 08011730 are of the same GameData class.
+
+GameData struct layout:
+    +0008 | some object
+        +08 | game datetime object?
+            +00bit | 8bit | year?
+            +08bit | 2bit | season
+            +10bit | 5bit | day?
+            +16bit | 5bit | hours
+            +21bit | 6bit | minutes (advances by 1 every 25 frames?)
+    +0014 | some object (08009AB0)
+        +000       | byte[$D] | a cstring
+        +010+00bit | 10bit    | ?
+        +010+10bit | 1bit     | ?
+        +010+11bit | 1bit     | ?
+        +010+12bit | 1bit     | ?
+        +033       | ???? a value (bits) (check 0800E9E0)
+        +040       | some object (player inventory data?)
+            +00+00bit | 3bit  | the nature of what is held?
+                00 is item
+            +00+03bit | 1bit  | has held item bool?
+            +00+16bit | 8bit? | item id? this may be an union discriminated by [+00bit]
+            +00+24bit | 8bit? | ?
+            +04       | array of 103(?) objects [$4] (0800B2DC)
+                +24bit | 7bit | ?
+                +31bit | 1bit | ? (default: false, set by 0800B344)
+        +1E0       | some object (player house data?) (0800BEE0)
+            +000+00bit | 2bit  | house size identifier
+            +000+08bit | 1bit  | ?
+            +000+09bit | 1bit  | ?
+            +000+10bit | 1bit  | ?
+            +000+11bit | 1bit  | ?
+            +000+12bit | 1bit  | ?
+            +000+13bit | 1bit  | ?
+            +000+14bit | 1bit  | ?
+            +000+15bit | 8bit  | ? (default: 6A)
+            +000+27bit | 1bit  | ?
+            +000+28bit | 1bit  | ?
+            +000+29bit | 1bit  | ?
+            +000+30bit | 2bit? | ?
+            +000+32bit | 6bit  | ? (default: 1A)
+            +000+38bit | 1bit  | ?
+            +000+39bit | 1bit  | ?
+            +000+40bit | 8bit  | ?
+            +008       | ItemEx[$40] (0800B6D0, 0800DEDC)
+            +108       | array of $40 of some 2 byte object (0800B954, 0800E080)
+            +188       | some object
+                +00bit | 1bit | ?
+                +01bit | 5bit | ?
+            +18C       | almost definitely tool box data (0800B35C, the constructor, even populates it with the default content)
+                +00 | ToolEx[$40] (0800DC3C)
+            +20C       | some object (0800BCC8)
+                +00 | array of 4 objects (size: $4)
+                    +00bit | 17bit | ?
+                +10 | array of 4 objects (size: $4) (same as above)
+        +40C       | some object (0800C4C4)
+            +000+00bit | 1bit |  ?
+            +000+01bit | 10bit | ?
+            +000+11bit | 1bit  | ?
+            +000+12bit | 8bit  | ?
+            +000+20bit | 1bit  | ?
+            +003       | byte  | ?
+            +004+00bit | 2bit  | ?
+            +008       | byte  | ?
+            +018       | array of 8 objects (size: $30)
+                +00bit | 1bit  | ?
+            +198       | array of 8 objects (size: $8)
+                +00bit | 10bit | ? (default: $23A)
+                +10bit | 6bit  | ?
+                +16bit | 10bit | ?
+                +26bit | 6bit  | ?
+                +32bit | 10bit | ?
+                +48bit | 3bit  | ?
+            +1D8       | array of 2 objects (size: $4)
+                +00bit | 2bit | ?
+                +02bit | 1bit | ?
+        +5EC       | some object (0800CE30)
+            +00+00bit | 1bit  | ?
+            +00+01bit | 10bit | ?
+            +00+11bit | 1bit  | ?
+            +00+12bit | 1bit  | ?
+            +00+13bit | 16bit | ?
+            +00+29bit | 2bit  | ?
+            +00+31bit | 1bit  | ?
+            +04+04bit | 10bit | ?
+            +04+14bit | 10bit | ?
+            +07       | byte[2] | ?
+            +0C       | byte  | ?
+            +1C       | byte  | ?
+            +2C       | array of 16 objects (size: $3C) (0800DA70)
+                +00bit | 1bit | ?
+        +9D8       | array of 1075(?) objects (size: $4) (08009FFC)
+            +00       | byte | ?
+            +00+08bit | 4bit | ?
+            +00+12bit | 5bit | ?
+            +00+17bit | 3bit | ? (default: result of 0800A084, aka 1)
+    +1AB8 | some object (0809FAE4, 0809FDD8) TODO
+        +000       | word | ? (default: 500) (money?)
+        +004+00bit | 1bit | ?
+        +004+01bit | 1bit | ?
+        +004+01bit | 1bit | ?
+        +008       | word | ?
+        +00C       | an array of some amount of objects (size: $8)
+        +0FC       | word | ?
+        +120       | word | ?
+        +124       | word | ?
+        +128       | word | ?
+        +12C       | word | ?
+    +1BE8 | some object
+        +00 | byte[$D] | a cstring
+        +10 | byte     | ?
+        +20 | byte     | ?
+        +24 | ActorLocation?
+        +2C | array of 6 objects (size: $4) (0800F020)
+            +00bit | 16bit | ?
+            +16bit | 3bit  | ?
+            +19bit | 3bit  | ?
+        +44+00bit | 4bit  | ?
+        +44+04bit | 1bit  | ?
+        +44+05bit | 1bit  | ?
+        +44+06bit | 1bit  | ?
+        +44+07bit | 8bit  | ? (default: 150)
+        +44+15bit | 8bit  | ?
+        +44+23bit | 8bit  | ?
+        +44+31bit | 1bit  | ? (shares with next?)
+        +48+00bit | 29bit | ?
+        +48+29bit | 3bit  | ? (shares with next?)
+        +4C+00bit | 7bit  | ?
+        +4C+07bit | 8bit  | ?
+        +4C+15bit | 17bit | ? (shares with next?)
+        +50+00bit | 13bit | ?
+        +50+13bit | 3bit  | ? (shares with next?)
+        +52+00bit | 3bit  | ?
+        +52+03bit | 1bit  | ?
+        +54       | some object (0800F24C) (this looks similar to [GameData+0014+040+00])
+            +00+00bit | 3bit  | ?
+            +00+03bit | 1bit  | ?
+            +02       | short | ?
+        +5C       | ToolEx
+        +60       | some object (0800F650) (is this the bag?)
+            +00 | word | ? (amount of objects in the following array?)
+            +04 | array of 8 objects (size: $4)
+                +00+00bit | 1bit | ?
+                +00+01bit | 1bit | ?
+                +01       | byte | ? (default: $AB)
+            +24 | word | ? (amount of objects in the following array?)
+            +28 | ToolEx[8]
+    +1C80 | some object
+        +00       | some object (080A0298)
+            +00       | some object (080A0098)
+                +00       | ActorLocation (default: loc=2, x=62, y=36?)
+                +08       | byte[$D] | a cstring
+                +18+00bit | 10bit    | ? (default: 1)
+                +18+10bit | 1bit     | ?
+                +18+11bit | 1bit     | ?
+                +18+12bit | 1bit     | ?
+                +18+13bit | 8bit     | ?
+            +1C       | byte | ?
+            +1D+00bit | 1bit | ?
+            +1D+01bit | 1bit | ?
+        +20       | word  | ?
+        +24       | short | ?
+        +26       | byte  | ?
+        +2C+00bit | 10bit | ?
+        +2C+10bit | 3bit  | ?
+        +2C+13bit | 8bit  | ? (default: 10)
+    +1CB0 | some object
+        +00 | word  | ?
+        +24 | EntityLocation (default: loc=23A, x=0, y=0)
+    +1CDC | EntityLocation (default: loc=23A, x=0, y=0)
+    +1CE4 | some object with a lot of fields (080A407C) TODO
+        +09C | popuri's CharacterData
+    +2164 | some objet (size: $A0)
+        +00       | word  | ?
+        +0C       | short | ?
+        +0E       | byte  | ?
+        +0F       | byte  | ?
+        +10+00bit | 1bit  | ?
+        +10+01bit | 1bit  | ?
+        +10+02bit | 2bit  | ?
+        +10+04bit | 1bit  | ?
+        +10+05bit | 1bit  | ?
+        +10+06bit | 1bit  | ?
+        +10+07bit | 2bit  | ?
+        +10+09bit | 1bit  | ?
+        +10+10bit | 1bit  | ?
+        +10+11bit | 1bit  | ?
+        +10+12bit | 1bit  | ?
+        +10+13bit | 1bit  | ?
+        +10+14bit | 1bit  | ?
+        +10+15bit | 1bit  | ?
+        +10+16bit | 1bit  | ?
+        +10+17bit | 1bit  | ?
+        +10+18bit | 1bit  | ?
+        +10+19bit | 2bit  | ?
+        +10+21bit | 2bit  | ?
+        +10+23bit | 2bit  | ?
+        +10+25bit | 2bit  | ?
+        +10+27bit | 2bit  | ?
+        +10+29bit | 2bit  | ?
+        +10+31bit | 1bit  | ? (shares with next?)
+        +14+00bit | 1bit  | ?
+        +14+01bit | 2bit  | ?
+        +14+03bit | 2bit  | ?
+        +14+05bit | 2bit  | ?
+        +14+07bit | 2bit  | ?
+        +14+09bit | 2bit  | ?
+        +14+11bit | 2bit  | ?
+        +14+13bit | 2bit  | ?
+        +14+15bit | 2bit  | ?
+        +14+17bit | 2bit  | ?
+        +14+19bit | 2bit  | ?
+        +14+21bit | 2bit  | ?
+        +14+23bit | 2bit  | ?
+        +14+25bit | 2bit  | ?
+        +14+27bit | 2bit  | ?
+        +14+29bit | 2bit  | ?
+        +14+31bit | 1bit  | ? (shares with next?)
+        +18+00bit | 1bit  | ?
+        ... this goes up to like 9C
+    +2204 | some object
+        +00 | word | ? (default: 1)
+        +04 | word | ?
+    +220C | byte[9] | ?
+    +2215 | byte[4] | ?
+    +221C | byte | ?
+    +222C | byte | ?
+    +223C | byte | ?
+    +224C | some object (080115D8)
+        +00bit | 1bit | ?
+        +01bit | 1bit | ? (default: 1)
+        +02bit | 1bit | ? (default: 1)
+        +03bit | 1bit | ? (default: 1)
+    +2250 | some object
+        I'm getting tired
+
+EntityLocation struct layout (given to AbstractEntity constructor as arg r2):
+    +00bit | 10bit | location identifier
+    +10bit | 16bit | x pixel position
+    +26bit | 16bit | y pixel position
+
+ActorLocation struct layout:
+    +00 | EntityLocation
+    +06 | byte | facing
+
+CharacterData struct layout:
+    +00       | ActorLocation
+    +0C+00bit | 5bit  | ?
+    +0C+05bit | 5bit  | ?
+    +0C+10bit | 5bit  | ?
+    +0C+15bit | 10bit | ?
+    +12       | short | animation id (if $FFFF, ScriptedActor constructor will take argument 5 ([sp+04]))

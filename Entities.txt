@@ -235,31 +235,7 @@ Game Object struct layout (constructed by 08017740):
         +1020 | word | ?
         +1024 | word | ?
         +1028 | word | ?
-    +1038 | word | pointer to argument r1 of constructor (saved game state?) (this is the same object pointed at PlayerActor+34)
-        +0008 | some object
-            +08 | some object capable of knowing the season (maybe the entire date/datetime?)
-                +08bit | 2bit | season identifier?
-                +10bit | 5bit | day?
-                +16bit | 5bit | hours
-                +21bit | 6bit | minutes; advances by 1 every 25 frames?
-        +0047 | ???? a value (bits) (check 0800E9E0)
-        +0054 | some object (related to player's held item?)
-            +00bit | 3bit  | the nature of what is held?
-                00 is item
-            +03bit | 1bit  | has held item bool?
-            +16bit | 8bit? | item id? this may be an union discriminated by [+00bit]
-            +24bit | 8bit? | ?
-        +01F4 | some object capable of knowing the player's house level/size
-            +00bit | 2bit | house size identifier
-        +0420 | some object?
-            +00bit | 1bit | ?
-        +0600 | some object?
-            +00bit | 1bit | ?
-        +1BE8 | some object
-            ... (0800E584)
-            +24 | ? (0800E9AC)
-        +1D80 | popuri's data
-        +224C | bool | ?
+    +1038 | word | GameData pointer (set from argument r1 of constructor)
     +103C | byte | ?
     +1040 | some object
         +00 | word | pointer to [+1038]+10 (?)
@@ -348,23 +324,6 @@ Game Object vtable layout:
 
 080350C0 | ScriptedActor ScriptedActor_construct(GameObject*, CharacterData*, GameData*, ActorScript*, int unk, int unk, int unk)
 ScriptedActor has vtable_80EF718
-
-EntityLocation struct layout (given to AbstractEntity constructor as arg r2):
-    +000bit | 10bit | location identifier
-    +010bit | 16bit | x pixel position
-    +026bit | 16bit | y pixel position
-
-ActorLocation struct layout:
-    +00 | EntityLocation
-    +06 | byte | facing
-
-CharacterData struct layout:
-    +000bit | ActorLocation
-    +096bit | 5bit  | ?
-    +101bit | 5bit  | ?
-    +106bit | 5bit  | ?
-    +111bit | 10bit | ?
-    +144bit | short | animation id (if $FFFF, ScriptedActor constructor will take argument 5 ([sp+04]))
 
 ScheduledActor struct layout:
     +00 | AbstractActor

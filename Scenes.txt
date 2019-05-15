@@ -6,6 +6,14 @@ Running a scene implies a full run until it ends (not just a single frame or som
 
 Scenes are weird because there's like two kind of objects that look very similar and until recently I thought they both were the same Scene object but are actually unrelated (in terms of type inheritance).
 
+AbstractScene struct layout:
+    +00 | word | vtable (yes)
+
+Scene (vtable: 080EE138) struct layout (this scene manages other scenes, as its run method calls doMainLoop):
+    +000 | AbstractScene
+    +004 | word | pointer to something (GameData?)
+    +364 | byte | ?
+
 struct Scene    { virtual ~Scene();    virtual std::auto_ptr<NotScene> run(); };
 struct NotScene { virtual ~NotScene(); virtual std::auto_ptr<Scene>    run(); };
 

@@ -1,5 +1,12 @@
 Addresses are MFOMTU
 
+help:
+    in case of loading from a bitfield the following way
+        ldr rx, [ADDR]
+        lsl rx, #A
+        lsr rx, #B
+    field address is ADDR+{ B - A }bit:{ 32 - B }bit
+
 PaletteManager struct layout:
     +00 | pointer to first free entry
     +04 | array of $20 entries:
