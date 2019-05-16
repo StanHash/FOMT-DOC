@@ -1,0 +1,91 @@
+
+The raw disassembled script looks like this:
+	push8 0
+	call func106
+	str
+	pop
+
+	push8 1
+	push8 0x36
+	pushm 0
+	add
+	str
+	pop
+
+	pushm 0
+	call func117
+	beq loc37
+
+	push8 0
+	push8 1
+	pushm 0
+	call func105
+
+	b loc45
+
+loc37:
+	push8 0
+	push8 2
+	pushm 0
+	call func105
+
+loc45:
+	call func1F
+
+	push8 0
+	call func22
+
+	call func21
+
+	pushm 1
+	push8 1
+	push8 0
+	call func11
+
+	end
+
+This is hopefully what I'll end up having mary spit out (I feel like that's reasonably feasible):
+	[0] = func106();
+	[1] = 0x36 + [0];
+
+	goto loc_37 ifn func117([0]);
+
+	func105(0, 1, [0]);
+
+	goto loc_45;
+
+loc_37:
+	func105(0, 2, [0]);
+
+loc_45:
+	func1F();
+	func22(0);
+	func21();
+	func11([1], 1, 0);
+
+	end;
+
+Ideally, mary could even spit this out (the control flow part will probably be the hardest):
+{
+	const str_0 = string("
+		[Player] is [N]
+		prengant![A]
+	"); // quality translation right there
+
+	var var_0 = func106();
+	var var_1 = 0x36 + var_0;
+
+	if (func117(var_0))
+	{
+		func105(0, 1, var_0);
+	}
+	else
+	{
+		func105(0, 2, var_0);
+	}
+
+	func1F();
+	func22(str_0);
+	func21();
+	func11(var_1, 1, 0);
+}

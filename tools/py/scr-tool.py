@@ -112,7 +112,7 @@ def main(args):
 					print("{:04X} {} {}{}".format(
 						pc,
 						CODE_NAME_TABLE[cId] if cId in CODE_NAME_TABLE else 'err',
-						'Y+' if cAd and imm != None else '',
+						'X+' if cAd and imm != None else '',
 						'${:X}'.format(imm) if imm != None else ''))
 
 			offset = offset + cSize

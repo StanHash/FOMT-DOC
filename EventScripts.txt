@@ -39,6 +39,7 @@ vtable layout:
     +10 | int usercommand(int id);
 
 maybe 0803F2CC does interpretation?
+0803FAC8 does sysfunc interpretation
 
 Each instruction starts with a byte:
     +00bit | 7bit | instruction id
@@ -96,4 +97,18 @@ ins 0F: (dec)
 ins 10: (neg)
 ins 11: (lnot)
 
+(...)
+
+Scripts seem to use push8 for values up to 127 (as opposed to 255). Maybe a mistake in the original script processor?
+
+funcs:
+    note on arguments:
+        all of them are 32bit integers, but some have different meanings than others.
+        var is whataver, unk is idk, string is an index in the string offset table/a string id, addr is a variable slot id
+
+    void func01F(void);
+    void func021(void);
+    void func022(string a); (display textbox?)
+    void func105(unk a, unk b, unk c);
+    unk  func117(unk a);
 
