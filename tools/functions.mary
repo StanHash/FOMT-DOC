@@ -1,0 +1,11 @@
+
+/* this is for use with mary as a decompiler */
+/* mary: https://github.com/StanHash/mary */
+
+function void func011(unk a, unk b, unk c) = 0x11;
+function void func01F()                    = 0x1F;
+function void func021()                    = 0x21;
+function void func022(string a)            = 0x22; /* (display textbox?) */
+function void func105(unk a, unk b, unk c) = 0x105;
+function unk  func106()                    = 0x106;
+function unk  func117(unk a)               = 0x117;

@@ -48,7 +48,7 @@ This is hopefully what I'll end up having mary spit out (I feel like that's reas
 	[0] = func106();
 	[1] = 0x36 + [0];
 
-	goto loc_37 ifn func117([0]);
+	goto loc_37 if !func117([0]);
 
 	func105(0, 1, [0]);
 
@@ -89,3 +89,28 @@ Ideally, mary could even spit this out (the control flow part will probably be t
 	func21();
 	func11(var_1, 1, 0);
 }
+
+2019-05-20 progress: mary can spit out the following:
+
+loc_0:
+	[0] = 262();
+	[1] = (54 + [0]);
+
+	push 279([0]);
+	beq 55;
+
+loc_36:
+	261(0, 1, [0]);
+
+	b 69;
+
+loc_55:
+	261(0, 2, [0]);
+
+loc_69:
+	31();
+	34(0);
+	33();
+	17([1], 1, 0);
+
+	end;
