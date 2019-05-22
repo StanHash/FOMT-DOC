@@ -48,7 +48,7 @@ Each instruction starts with a byte:
 ins 00: (nop)
     do nothing
 
-ins 01: (setmem)
+ins 01: (equ)
     ok this is weird
     so +24 is some kind of stack, and +1B4 is like sp
     what this does is read the *second* topmost value from the stack, and interprets it as an offset in the +1B8 array, which is probably something more like random access memory
@@ -62,44 +62,66 @@ ins 01: (setmem)
     This is amazing
     Is this an existing language?
 
-ins 02: (addmem)
+ins 02: (addequ)
     IN:  STACK = { ..., OFF, OP2 };  MEMORY = { ..., [OFF] = OP1, ... }
     OUT: STACK = { ..., OP1 + OP2 }; MEMORY = { ..., [OFF] = OP1 + OP2, ... }
 
-ins 03: (submem)
+ins 03: (subequ)
     IN:  STACK = { ..., OFF, OP2 };  MEMORY = { ..., [OFF] = OP1, ... }
     OUT: STACK = { ..., OP1 - OP2 }; MEMORY = { ..., [OFF] = OP1 - OP2, ... }
 
-ins 04: (mulmem) (mem_op * stack_op)
-ins 05: (divmem) (mem_op / stack_op)
-ins 06: (modmem) (mem_op % stack_op)
+ins 04: (mulequ) (mem_op *= stack_op)
+ins 05: (divequ) (mem_op /= stack_op)
+ins 06: (modequ) (mem_op %= stack_op)
 
-ins 07: (addstk)
+ins 07: (add)
     IN:  STACK = { ..., OP1, OP2 }
     OUT: STACK = { ..., OP1 + OP2 }
 
-ins 08: (substk)
+ins 08: (sub)
     IN:  STACK = { ..., OP1, OP2 }
     OUT: STACK = { ..., OP1 - OP2 }
 
-ins 09: (mulstk)
-ins 0A: (divstk)
-ins 0B: (modstk)
+ins 09: (mul)
+ins 0A: (div)
+ins 0B: (mod)
 
-ins 0C: (landstk)
+ins 0C: (and)
     IN:  STACK = { ..., OP1, OP2 }
     OUT: STACK = { ..., OP1 && OP2 }
 
-ins 0D: (lorrstk)
+ins 0D: (or)
 
 ins 0E: (inc)
 ins 0F: (dec)
 ins 10: (neg)
-ins 11: (lnot)
+ins 11: (not)
 
-(...)
+(... (both tools/py/scr-tool.py and mary have full lists))
 
 Scripts seem to use push8 for values up to 127 (as opposed to 255). Maybe a mistake in the original script processor?
+
+bi is never used in any of the 1407 vanilla scripts (thank god)
+subequ, divequ, modequ and dec are never used, but I feel like I know how they would have been used
+addequ is only used by 1051
+
+inc, popm and dup are all only used by 5, 166, 1046, 1052, 1121, 1226, 1244, 1345
+
+5:
+    pushm 2; // stack: ([2])
+    inc;     // stack: ([2]+1)
+    dup;     // stack: ([2]+1), ([2]+1)
+    popm 2;  // stack: ([2]+1); s.e.: [2] = [2]+1
+
+    this is push ++[2];
+
+1046:
+    pushm 4; // stack: ([4])
+    dup;     // stack: ([4]), ([4])
+    inc;     // stack: ([4]), ([4]+1)
+    popm 4;  // stack: ([4]); s.e.: [4] = [4]+1
+
+    this is push [4]++;
 
 funcs:
     note on arguments:
