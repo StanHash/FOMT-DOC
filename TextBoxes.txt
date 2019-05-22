@@ -1,5 +1,8 @@
 Addresses are MFOMTU
 
+TextBoxHandle struct layout:
+    +00 | word | auto_ptr to TextBox
+
 TextBox struct layout:
     +000 | bit[00-01] | idk
     +000 | bit[02-06] | bg map block to use (in increments of $800) for the box gfx
@@ -35,8 +38,8 @@ TextBox struct layout:
     +190 | DefinedSprite | "text box arrow" sprite
     +1C0 | SpriteAnimator | sprite animator for either the hand cursor or the "text box arrow"
     +1D4 | TileVramSlotHodler | 
-    +1DC | bit[00] | ??
-    +1DC | bit[01] | ??
+    +1DC+00bit | 1bit | ?
+    +1DC+01bit | 1bit | ?
     +1E4 | some object
         +00 | word | pointer to some dynamically allocated object (size: $20)
             +00 | array of 4 of the following:?

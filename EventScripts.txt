@@ -38,6 +38,24 @@ vtable layout:
     +0C | 
     +10 | int usercommand(int id);
 
+some subclass struct:
+    +000 | see above
+    +354 | word | pointer to some object
+        +04 | word | pointer to some object
+            +A8 | word | pointer to GameObject (see Entities.txt)
+            +9C | word | ? (set by 080122B0, which also sets +E4) (text box related?)
+            +AC | word | auto_ptr to TextBoxHandle
+            +B0 | word | pointer to TextBoxCharExpander (whatever that is, december2018!me)
+            +B4 | word | auto_ptr to some object
+                +04 | word | vtable
+            +B8 | word | auto_ptr to some object
+                +04 | word | vtable
+            +BC | MusicPlayer
+            +D0 | begin ptr of a MusicPlayer range
+            +D4 | end ptr of a MusicPlayer range
+            +E4 | word | pointer to an Entity/Actor
+            +E8 | byte | 
+
 maybe 0803F2CC does interpretation?
 0803FAC8 does sysfunc interpretation
 
@@ -126,11 +144,10 @@ inc, popm and dup are all only used by 5, 166, 1046, 1052, 1121, 1226, 1244, 134
 funcs:
     note on arguments:
         all of them are 32bit integers, but some have different meanings than others.
-        var is whataver, unk is idk, string is an index in the string offset table/a string id, addr is a variable slot id
+        var is whatever, unk is idk, string is an index in the string offset table/a string id, addr is a variable slot id
 
-    void func01F(void);
-    void func021(void);
-    void func022(string a); (display textbox?)
-    void func105(unk a, unk b, unk c);
-    unk  func117(unk a);
+    see tools/functions.mary for script function documentation
 
+scripts:
+    01 is when you get prengant?
+    04 is when you get horse?

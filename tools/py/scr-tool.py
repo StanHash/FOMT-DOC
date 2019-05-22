@@ -157,21 +157,28 @@ def main(args):
 	except IndexError:
 		sys.exit("usage: [python3] {} <rom file> <table offset> <entry>".format(args[0]))
 
-	with open(romFile, 'rb') as f:
-		f.seek(romOffset + 4*scrEntry)
-		scrOffset = read_int(f, 4) & 0x1FFFFFF
-
-		if scrOffset != 0:
-			for line in script_lines(f, scrOffset):
-				print(line)
-
 	if False:
+		with open(romFile, 'rb') as f:
+			f.seek(romOffset + 4*scrEntry)
+			scrOffset = read_int(f, 4) & 0x1FFFFFF
+
+			if scrOffset != 0:
+				print('SCR: 0x{:X}'.format(scrOffset + 0x8000000))
+
+				for line in script_lines(f, scrOffset):
+					print(line)
+
+	if True:
 		# do stats
 
 		opStats = {}
+		fnStats = {}
 
 		for i in range(0x25):
 			opStats[i] = []
+
+		for i in range(339):
+			fnStats[i] = []
 
 		with open(romFile, 'rb') as f:
 			for iScr in range(scrEntry):
@@ -183,9 +190,13 @@ def main(args):
 						if not (iScr in opStats[op]):
 							opStats[op].append(iScr)
 
-		for i in range(0x25):
-			name = CODE_NAME_TABLE[i]
-			print('{}: {}'.format(name, opStats[i]))
+						if op == 0x21: # call
+							if not (iScr in fnStats[imm]):
+								fnStats[imm].append(iScr)
+
+		for i in range(339):
+			# name = CODE_NAME_TABLE[i]
+			print('{:03X}: {}'.format(i, fnStats[i]))
 
 if __name__ == '__main__':
 	main(sys.argv)

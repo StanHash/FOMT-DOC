@@ -2,10 +2,63 @@
 /* this is for use with mary as a decompiler */
 /* mary: https://github.com/StanHash/mary */
 
-function void func011(unk a, unk b, unk c) = 0x11;
-function void func01F()                    = 0x1F;
-function void func021()                    = 0x21;
-function void func022(string a)            = 0x22; /* (display textbox?) */
-function void func105(unk a, unk b, unk c) = 0x105;
-function unk  func106()                    = 0x106;
-function unk  func117(unk a)               = 0x117;
+/* note: those script functions are handled by one actual function located at MFOMTU:0803FAC8 */
+
+/* == NO-OP FUNCTIONS == */
+function void null0(int) = 0x000; /* does nothing (FoMT? Debug? not used) */
+function void null1(int) = 0x001; /* does nothing (FoMT? Debug? not used) */
+
+/* == ACTOR FUNCTIONS == */
+function void setActorPosition(actor, int x, int y, facing) = 0x002; /* sets actor position. If actor isn't on active location, warps actor there. */
+function int getActorX(actor)                               = 0x003; /* gets actor X position */
+function int getActorY(actor)                               = 0x004; /* gets actor Y position */
+function void setActorFacing(actor, facing)                 = 0x005; /* sets actor facing */
+function facing getActorFacing(actor)                       = 0x006; /* gets actor facing */
+function void setActorUnk21(actor, int b)                   = 0x007; /* sets actor field +21 */
+function void actor_008(actor, int x, int c)                = 0x008; /* something similar to 009 */
+function void actor_009(actor, int x, int c)                = 0x009; /* wraps MFOMTU:08012260([+0354], id, x, make_q16(c)) */
+function void actor_00A(actor, int y, int c)                = 0x00A; /* wraps MFOMTU:08012288([+0354], id, y, make_q16(c)) */
+function void actor_00B(actor, int y, int c)                = 0x00B; /* something similar to 00A */
+function void actor_00C(actor)                              = 0x00C; /* wraps MFOMTU:080122B0([+0354], id) */
+function void setActorAnim(actor, int anim)                 = 0x00D; /* sets sprite animation id for given actor */
+function void actor_00E(actor)                              = 0x00E; /* wraps MFOMTU:08012304, a nullsub */
+function void disableActor(actor)                           = 0x00F; /* disables actor (sets location id to 0x23A) */
+function void actor_010(actor, int unk)                     = 0x010; /* something related to display (sets [[+10]+88]) */
+function void actor_011(actor, int unk, bool unk)           = 0x011; /* something related to display (sets a bunch of things) */
+function void actor_012(actor, int unk)                     = 0x012; /* something related to display (sets [[+10]+8A+00bit]) */
+function facing opposite(facing)                            = 0x013; /* gets opposite facing. TODO: check if this is actually how it is used */
+function location getActorLocation(actor)                   = 0x014; /* gets actor location */
+function void actor_015(actor, int unk, int unk)            = 0x015; /* calls MFOMTU:0801232C, which assumes a certain kind of actor */
+
+/* == CAMERA FUNCTIONS == */
+function void camera_016(location, int x, int y) = 0x016; /* something about camera change */
+function void camera_017(int x, int y, int unk) = 0x017; /* something else about camera change */
+function void func018() = 0x018; /* wait for camera movement? */
+
+/* == SOUND FUNCTIONS == */
+function void playBgm(int start, song) = 0x019; /* set bgm? plays song through MusicPlayer at [[+354]+4]+B4 */
+function void stopBgm() = 0x01A; /* stops whatever was played by 019 */
+function void playSong(int start, song) = 0x01B; /* play sfx? can play by a bunch of MusicPlayers */
+function void stopAllSounds() = 0x01C; /* stops all sounds */
+function void stopBgmFaded() = 0x01D; /* fades bgm (or whatever 019 plays) out */
+
+/* == TEXT BOX FUNCTIONS == */
+function void func01E() = 0x01E; /* end talk? */
+function void func01F() = 0x01F; /* begin talk? */
+function void func020() = 0x020; /* begin talk? (without portrait?) */
+function void func021() = 0x021; /* close talk? */
+function void func022(string) = 0x022; /* display text? */
+function void func023(string) = 0x023; /* display text? (same as 022 but with 0x40 instead of 0x100 as text speed) */
+function void func024(string) = 0x024; /* display text? (same as 022 but with 0 instead of 0x100 as text speed) */
+function void func025(string, string, string) = 0x025; /* I have no idea (talk related) (choice text?) */
+function void func026(string, string, string, string) = 0x026; /* (still talk related) */
+function void func027(string, string, string, string, string) = 0x027; /* this is getting ridiculous */
+function void func028(string, string) = 0x028;
+function void func029(string, string, string) = 0x029;
+
+function void func03F(int a, int b)               = 0x03F; /* wraps MFOMTU:0804A3F8(self, a, b), which seems huge */
+function void func080(int a, int b)               = 0x080;
+function void func104(int a, int b)               = 0x104; /* wraps MFOMTU:08014EBC([+0354], a, b) */
+function void func105(int a, int b, int c)        = 0x105;
+function int  func106()                           = 0x106;
+function int  func117(int a)                      = 0x117;

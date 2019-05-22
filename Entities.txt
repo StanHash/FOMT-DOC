@@ -94,10 +94,19 @@ AbstractEntity struct layout (size: $18):
         id 00F is shop interior
         id 01D is player's house
         id 03A is spring mine
+        080E0548 checks for location 00C and more
     +06 | byte  | ? is doing something special bool?
     +08 | word  | x position (Q16?)
     +0C | word  | y position (Q16?)
-    +10 | word  | some object pointer (has vtable at +04) (related to display! has inline SpriteAnimator at +30)
+    +10 | word  | some object pointer (related to display)
+        +04 | word | vtable?
+        +30 | SpriteAnimator
+        +70 | SpriteAnimator
+        +84 | byte | ?
+        +86 | byte | ?
+        +87 | byte | ?
+        +88 | byte | ?
+        +8A+00bit | 2bit | ?
     +14 | word  | vtable (080EE790)
 
 AbstractActor struct layout:
@@ -109,7 +118,9 @@ AbstractActor struct layout:
     +22 | short | anim identifier base?
     +24 | short | animation duration?
     +26 | short | animation duration?
-    +28 | some object (constructor: 80326BC (lol))
+    +28 | some object/word (constructor: 80326BC (lol)) (script funcs 0x009 and 0x00A messes with this)
+    +2C | short | ?
+    +2E | byte  | ?
 
 PlayerActor struct layout (size: $C8):
     +00 | Abstract(Player)Actor (vtable: 080EEB98)
@@ -160,6 +171,11 @@ Game Object struct layout (constructed by 08017740):
             +04 | word | some map id?
             +08 | word | camera x (Q16)
             +0C | word | camera y (Q16)
+            +2C | word | pointer to some terrain data?
+            +84 | ?
+            +88 | ?
+            +8C | ?
+            +90 | word | vtable? (080AA954)
         +0004 | word[$64] | array of pointer to entities
             Entity 00 is Player
             Entity 01 is Lillia
@@ -204,6 +220,8 @@ Game Object struct layout (constructed by 08017740):
             Entities 55-57 are Poultry Farm Chickens
             Entities 58-5A are Yodel Farm Cows
             Entity 5B is Hannah
+            Notes:
+                Entity 01 through 23 are all instances of ScheduledActor
         +0194 | word | ?
         +0198 | ??
         +0238 | array of $15 ($16? that wouldn't make much sense) objects (size: $84)
@@ -232,8 +250,12 @@ Game Object struct layout (constructed by 08017740):
         +0F90 | DefinedSprite (086CCD84, ?)
         +0FC0 | DefinedSprite (086CB7BC, clouds?)
         +0FF0 | DefinedSprite (086989C8, ?)
-        +1020 | word | ?
-        +1024 | word | ?
+        +1020 | word | auto_ptr to some object (destructor: 0803AF78)
+            +00 | word | (non-owning?) pointer to some object
+                +00 | word | vtable
+            +04 | array of some (3?) objects (size: 0x2C?) that own a TileVramManagerHandle
+            +8C | byte |
+        +1024 | word | auto_ptr to some object holding more TileVramManagerHandles (destructor: 080B0530)
         +1028 | word | ?
     +1038 | word | GameData pointer (set from argument r1 of constructor)
     +103C | byte | ?
@@ -249,18 +271,18 @@ Game Object struct layout (constructed by 08017740):
     +1064 | word    | ? (08017800)
     +1068 | word    | ? (08017808)
     +1074 | word[2] | ?
-    +107C | word    | ?
+    +107C | word    | auto_ptr to some object holding some TileVramManagerHandles (destructor: 0803B3A8)
     +1080 | array of 4 objects (size: $C)
         +08bit | 2bit | ?
         +0C    | word | ?
-    +10B0 | word[6] | ?
+    +10B0 | word[6] | array of 6 pointers to objects (vtable at +24)
     +10C8 | byte    |
 
 AbstractEntity vtable layout:
     +08 | ~AbstractEntity();
     +0C | struct { short left, top, right, bottom; } unk(); (default: returns { x, y, x, y })
     +10 | ?? init?
-    +14 | ??
+    +14 | voud unk(); (called on location id change?)
     +18 | void unk(); (default: calls [object at +10 vtable]+0C) (this seems important, maybe update?)
     +1C | void unk(int unk); (default: calls [object at +10 vtable]+10 with argument)
     +20 | void unk(); (default: sets byte at +06 to 1)
@@ -311,6 +333,7 @@ Game Object vtable layout:
     +018 | int getCameraX(void);
     +01C | int getCameraY(void);
     +020 | void setCamera?(int x, int y);
+    +024 | move camera? does square roots!
     +02C | int getLocationPxWidth(int location);
     +030 | int getLocationPxHeight(int location);
     +034 | struct { void* unk; void* unk; short width, height; } getLocationTerrain(int location); (does lots of things but in the end gets { mapData.unk18, mapData.unk1C, mapData.width, mapData.height })
@@ -318,6 +341,7 @@ Game Object vtable layout:
     +040 | AbstractActor* getActor(int identifier); (maybe)
     +064 | AbstractSprite* getItemSprite(void);
     +068 | AbstractSprite* getMapActorSprite(void);
+    +0B4 | ??? unk(EntityLocation*, int unk); (08019D70)
     +120 | bool unk(EntityLocation*);
     +144 | Unk* getUnk(void); (gets [+1038]+08)
     +14C | Unk* getUnk(void); (gets [[+1054]+04]+D0, MusicPlayer related)
