@@ -203,17 +203,17 @@ Game Object struct layout (constructed by 08017740):
             Entity 17 is Cliff
             Entity 18 is Doug
             Entity 19 is Ann
-            Entity 1A ?
+            Entity 1A is Kai?
             Entity 1B is Gotz
             Entity 1C is Zack
             Entity 1D is Won
-            Entity 1E ?
+            Entity 1E is Gourmet?
             Entity 1F is Harvest Goddess
-            Entity 20 ?
-            Entity 21 ?
-            Entity 22 ?
+            Entity 20 is Kappa?
+            Entity 21 is Van?
+            Entity 22 is Luu/Ruby?
             Entity 23 ?
-            Entities 24-2A are Harvest Sprites
+            Entities 24-2A are Harvest Sprites (order: Staid, Nappy, Bold, Chef, Aqua, Hoggy, Timid?)
             Entity 2B is your Dog
             Entity 2C is your Horse
             Entities 2D-54 are player animals?

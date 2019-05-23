@@ -96,7 +96,7 @@ def script_ops(file, baseOffset):
 					imm = read_int(file, CODE_IMM_SIZE_TABLE[cId])
 					i = i + CODE_IMM_SIZE_TABLE[cId]
 
-				yield (cId, cAd, imm)
+				yield (cId, cAd, imm, pc)
 
 		offset = offset + cSize
 		file.seek(baseOffset + offset + 8)
@@ -157,7 +157,43 @@ def main(args):
 	except IndexError:
 		sys.exit("usage: [python3] {} <rom file> <table offset> <entry>".format(args[0]))
 
+	if True:
+		with open(romFile, 'rb') as f:
+			for iScr in range(scrEntry):
+				f.seek(romOffset + 4*iScr)
+				scrOffset = read_int(f, 4) & 0x1FFFFFF
+
+				if scrOffset != 0:
+					hasLoop   = False
+					hasSwitch = False
+					lastOff   = 0
+
+					for op, x, imm, off in script_ops(f, scrOffset):
+						if op >= 0x18 and op <= 0x1E: # call
+							if imm < off:
+								hasLoop = True
+
+						if op == 0x24:
+							hasSwitch = True
+
+						lastOff = off
+
+					if hasLoop or hasSwitch:
+						print("{:03X}: size={:X}, loop={}, switch={}".format(iScr, lastOff+1, hasLoop, hasSwitch))
+
 	if False:
+		# print offsets
+
+		with open(romFile, 'rb') as f:
+			for iScr in range(scrEntry):
+				f.seek(romOffset + 4*iScr)
+				scrOffset = read_int(f, 4)
+
+				print("{:03X}: {:08X}".format(iScr, scrOffset))
+
+	if False:
+		# print script
+
 		with open(romFile, 'rb') as f:
 			f.seek(romOffset + 4*scrEntry)
 			scrOffset = read_int(f, 4) & 0x1FFFFFF
@@ -168,8 +204,8 @@ def main(args):
 				for line in script_lines(f, scrOffset):
 					print(line)
 
-	if True:
-		# do stats
+	if False:
+		# print op/fn stats
 
 		opStats = {}
 		fnStats = {}
@@ -186,7 +222,7 @@ def main(args):
 				scrOffset = read_int(f, 4) & 0x1FFFFFF
 
 				if scrOffset != 0:
-					for op, x, imm in script_ops(f, scrOffset):
+					for op, x, imm, off in script_ops(f, scrOffset):
 						if not (iScr in opStats[op]):
 							opStats[op].append(iScr)
 

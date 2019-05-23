@@ -90,27 +90,46 @@ Ideally, mary could even spit this out (the control flow part will probably be t
 	func11(var_1, 1, 0);
 }
 
-2019-05-20 progress: mary can spit out the following:
+2019-05-20 progress:
 
 loc_0:
 	[0] = 262();
 	[1] = (54 + [0]);
-
 	push 279([0]);
 	beq 55;
-
 loc_36:
 	261(0, 1, [0]);
-
 	b 69;
-
 loc_55:
 	261(0, 2, [0]);
-
 loc_69:
 	31();
 	34(0);
 	33();
 	17([1], 1, 0);
-
 	end;
+
+2019-05-23 progress:
+
+/* --- BASIC 0 --- */
+    [0] = func106();
+    [1] = (54 + [0]);
+    push func117([0]);
+    beq loc_55;
+/* --- OUT 2, 1 --- */
+/* --- BASIC 1 --- */
+    func105(0, 1, [0]);
+    b loc_69;
+/* --- OUT 3 --- */
+/* --- BASIC 2 --- */
+loc_55:
+    func105(0, 2, [0]);
+/* --- OUT 3 --- */
+/* --- BASIC 3 --- */
+loc_69:
+    talkBegin_01F();
+    talkDisplay_022(0);
+    talkClose_021();
+    actor_011([1], 1, 0);
+    end;
+/* --- OUT end --- */

@@ -33,7 +33,7 @@ function void actor_015(actor, int unk, int unk)            = 0x015; /* calls MF
 /* == CAMERA FUNCTIONS == */
 function void camera_016(location, int x, int y) = 0x016; /* something about camera change */
 function void camera_017(int x, int y, int unk) = 0x017; /* something else about camera change */
-function void func018() = 0x018; /* wait for camera movement? */
+function void camera_018() = 0x018; /* wait for camera movement? */
 
 /* == SOUND FUNCTIONS == */
 function void playBgm(int start, song) = 0x019; /* set bgm? plays song through MusicPlayer at [[+354]+4]+B4 */
@@ -43,22 +43,33 @@ function void stopAllSounds() = 0x01C; /* stops all sounds */
 function void stopBgmFaded() = 0x01D; /* fades bgm (or whatever 019 plays) out */
 
 /* == TEXT BOX FUNCTIONS == */
-function void func01E() = 0x01E; /* end talk? */
-function void func01F() = 0x01F; /* begin talk? */
-function void func020() = 0x020; /* begin talk? (without portrait?) */
-function void func021() = 0x021; /* close talk? */
-function void func022(string) = 0x022; /* display text? */
-function void func023(string) = 0x023; /* display text? (same as 022 but with 0x40 instead of 0x100 as text speed) */
-function void func024(string) = 0x024; /* display text? (same as 022 but with 0 instead of 0x100 as text speed) */
-function void func025(string, string, string) = 0x025; /* I have no idea (talk related) (choice text?) */
-function void func026(string, string, string, string) = 0x026; /* (still talk related) */
-function void func027(string, string, string, string, string) = 0x027; /* this is getting ridiculous */
-function void func028(string, string) = 0x028;
-function void func029(string, string, string) = 0x029;
+function void talkEnd_01E() = 0x01E; /* end talk? */
+function void talkBegin_01F() = 0x01F; /* begin talk? */
+function void talkBegin_020() = 0x020; /* begin talk? (without portrait?) */
+function void talkClose_021() = 0x021; /* close talk? */
+function void talkDisplay_022(string) = 0x022; /* display text? */
+function void talkDisplay_023(string) = 0x023; /* display text? (same as 022 but with 0x40 instead of 0x100 as text speed) */
+function void talkDisplay_024(string) = 0x024; /* display text? (same as 022 but with 0 instead of 0x100 as text speed) */
+function void talkDisplay_025(string, string, string) = 0x025; /* I have no idea (talk related) (choice text?) */
+function void talkDisplay_026(string, string, string, string) = 0x026; /* (still talk related) */
+function void talkDisplay_027(string, string, string, string, string) = 0x027; /* this is getting ridiculous */
+function void talkDisplay_028(string, string) = 0x028;
+function void talkDisplay_029(string, string, string) = 0x029;
 
-function void func03F(int a, int b)               = 0x03F; /* wraps MFOMTU:0804A3F8(self, a, b), which seems huge */
-function void func080(int a, int b)               = 0x080;
-function void func104(int a, int b)               = 0x104; /* wraps MFOMTU:08014EBC([+0354], a, b) */
-function void func105(int a, int b, int c)        = 0x105;
+function void talk_02D(actor) = 0x02D; /* set talk box name? */
+function void talk_030(int unk) = 0x030;
+function void talk_031() = 0x031;
+
+function void func034(int unk, int unk) = 0x034; /* something about fading in/out? */
+function void func035(int unk, int unk) = 0x035; /* ^ */
+function void func037(int unk) = 0x37;
+
+function int func03E(int unk) = 0x03E; /* related to func 3F */
+function void func03F(int unk, int unk) = 0x03F; /* wraps MFOMTU:0804A3F8(self, a, b), which seems huge */
+function int func040() = 0x040; /* is holding item? */
+
+function void func080(int unk, int unk)               = 0x080;
+function void func104(int unk, int unk)               = 0x104; /* wraps MFOMTU:08014EBC([+0354], a, b) */
+function void func105(int unk, int unk, int unk)        = 0x105;
 function int  func106()                           = 0x106;
-function int  func117(int a)                      = 0x117;
+function int  func117(int unk)                      = 0x117;

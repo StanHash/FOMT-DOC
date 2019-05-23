@@ -40,6 +40,7 @@ vtable layout:
 
 some subclass struct:
     +000 | see above
+    +350 | word | pointer to GameData (see GameData.txt)
     +354 | word | pointer to some object
         +04 | word | pointer to some object
             +A8 | word | pointer to GameObject (see Entities.txt)
@@ -53,6 +54,7 @@ some subclass struct:
             +BC | MusicPlayer
             +D0 | begin ptr of a MusicPlayer range
             +D4 | end ptr of a MusicPlayer range
+            +E0 | short | ? (set by 08012D38/scr func 37, which also sets +9C to 15)
             +E4 | word | pointer to an Entity/Actor
             +E8 | byte | 
 
