@@ -42,7 +42,7 @@ CODE_NAME_TABLE = {
 	0x21: "call",
 	0x22: "push16",
 	0x23: "push8",
-	0x24: "switch"
+	0x24: "select"
 }
 
 CODE_IMM_SIZE_TABLE = {

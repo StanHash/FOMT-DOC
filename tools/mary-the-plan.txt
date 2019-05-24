@@ -1,13 +1,13 @@
 
-RULES:
-	push8 A;              <=> push A:i8
-	push16 A;             <=> push A:i16
-	push32 A;             <=> push A:i32
+LINEAR RULES:
+	push8 A;              <=> push A
+	push16 A;             <=> push A
+	push32 A;             <=> push A
 	pushm A;              <=> push [A]
 
 	push A; pop           <=> A;
 
-	push A; push B; equ;  <=> push [A] = B;
+	push A; push B; equ;    <=> push [A] = B;
 	push A; push B; addequ; <=> push [A] += B;
 	push A; push B; subequ; <=> push [A] += B;
 	push A; push B; mulequ; <=> push [A] *= B;
@@ -28,80 +28,23 @@ RULES:
 
 	push A; push B; cmp; beq C; <=> goto C if (A == B)
 
-	push A; inc           <=> push (A + 1)
-	push A; dec           <=> push (A - 1)
+	~push A; inc           <=> push (A + 1)~
+	~push A; dec           <=> push (A - 1)~
 	push A; neg           <=> push (-A)
 	push A; not           <=> push (!A)
 
-	push A; poppc;        <=> goto A
+	push A; bi;        <=> goto A
 
 EX:
-	push8 $1;
-	push8 $36;
-	pushm $0;
-	add;
-	str;
-	pop;
+	=> push8 1; push8 0x36; pushm 0;  add; equ; pop; <-- raw instructions
+	=> push 1;  push  0x36; push [0]; add; equ; pop; <-- push simplifications
+	=> push 1;  push 0x36 + [0];           equ; pop; <-- [push A|push B|add] to push (A + B)
+	=> push [1] = 0x36 + [0];                   pop; <-- [push A|push B|equ] to push ([A] = B)
+	=> [1] = 0x36 + [0];                             <-- [push A|pop] to naked A
 
-	push 1;
-	push8 $36;
-	pushm $0;
-	add;
-	str;
-	pop;
-
-	push 1
-	push 0x36
-	pushm $0
-	add
-	str
-	pop
-
-	push 1;
-	push 0x36;
-	push [0];
-	add;
-	str;
-	pop;
-
-	push 1;
-	push 0x36 + [0];
-	str;
-	pop;
-
-	push [1] = 0x36 + [0];
-	pop;
-
-	[1] = 0x36 + [0];
-
-0000 push8 $0
-0002 sys $106
-0007 store 
-0008 pop 
-0009 push8 $1
-000B push8 $36
-000D pushm $0
-0012 add 
-0013 store 
-0014 pop 
-0015 pushm $0
-001A sys $117
-001F beq $37
-0024 push8 $0
-0026 push8 $1
-0028 pushm $0
-002D sys $105
-0032 b $45
-0037 push8 $0
-0039 push8 $2
-003B pushm $0
-0040 sys $105
-0045 sys $1F
-004A push8 $0
-004C sys $22
-0051 sys $21
-0056 pushm $1
-005B push8 $1
-005D push8 $0
-005F sys $11
-0064 end
+FLOW RULES:
+	0: push A; beq; -> 1, 2
+	1: {...} -> end
+	2: {...} -> end
+	<=>
+	if A then {1} else {2}

@@ -58,20 +58,55 @@ some subclass struct:
             +E4 | word | pointer to an Entity/Actor
             +E8 | byte | 
 
-maybe 0803F2CC does interpretation?
-0803FAC8 does sysfunc interpretation
+0803F2CC does core script interpretation
+0803FAC8 handles "function calls" (instruction 21)
 
 Each instruction starts with a byte:
     +00bit | 7bit | instruction id
     +07bit | 1bit | for instructions with immediate operands, if set, the value of the operand will intead be imm + [+348] (instead of just imm)
 
-ins 00: (nop)
-    do nothing
+INSTRUCTIONS:
+    00: nop    (nop)
+    01: equ    ([-2]  = [-1])
+    02: addequ ([-2] += [-1])
+    03: subequ ([-2] -= [-1])
+    04: mulequ ([-2] *= [-1])
+    05: divequ ([-2] /= [-1])
+    06: modequ ([-2] %= [-1])
+    07: add    ([-2]  + [-1])
+    08: sub    ([-2]  - [-1])
+    09: mul    ([-2]  * [-1])
+    0A: div    ([-2]  / [-1])
+    0B: mod    ([-2]  % [-1])
+    0C: and    ([-2] && [-1])
+    0D: or     ([-2] || [-1])
+    0E: inc    ([-1]+1)
+    0F: dec    ([-1]-1)
+    10: neg    (-[-1])
+    11: not    (![-1])
+    12: cmp    ([-2] <=> [-1]) (result is -1, 0 or +1)
+    13: pushm imm (push mem[imm])
+    14: popm imm  (pop mem[imm])
+    15: dup       (push [-1])
+    16: pop       (naked pop/discard)
+    17: push imm
+    18: b imm     (goto offset imm)
+    19: blt imm
+    1A: ble imm
+    1B: beq imm
+    1C: bne imm
+    1D: bge imm
+    1E: bgt imm
+    1F: bi
+    20: end
+    21: call imm
+    22: push16 imm
+    23: push8 imm
+    24: select imm
 
-ins 01: (equ)
-    ok this is weird
+instruction 01 (equ):
     so +24 is some kind of stack, and +1B4 is like sp
-    what this does is read the *second* topmost value from the stack, and interprets it as an offset in the +1B8 array, which is probably something more like random access memory
+    what this does is read the second topmost value from the stack, and interprets it as an offset in the +1B8 array, which is probably something more like random access memory
     it then stores the topmost value from the stack to both the offset in the +1B8 array *and* the second topmost stack slot
     and also reduces the stack pointer by 1
 
@@ -80,7 +115,19 @@ ins 01: (equ)
         OUT: STACK = { ..., VAL };      MEMORY = { ..., [OFF] = VAL, ... }
 
     This is amazing
-    Is this an existing language?
+
+instruction 24 (select):
+    this instruction is the sole reason for the JUMP chunk in the riff to exist.
+
+    So this is how we know how it is agenced:
+        first word of JUMP is... the total data size? Maybe?
+        First part of the JUMP data is an array of offsets to the actual jump data for each select instruction (indexed by select imm)
+        Jump data for select instruction:
+            +00 | word | case count
+            +04 | word | default jump offset within code (ignored if negative)
+            +08 | an array of [+00] objects (size: 8), *sorted by match value* (it is going to be bsearched through, so it better be sorted)
+                +00 | word | match value
+                +04 | word | jump offset within code
 
 ins 02: (addequ)
     IN:  STACK = { ..., OFF, OP2 };  MEMORY = { ..., [OFF] = OP1, ... }
